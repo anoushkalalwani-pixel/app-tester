@@ -1,0 +1,30 @@
+name: draft_1
+description: "A new Flutter project."
+publish_to: 'none'
+version: 0.1.0
+
+environment:
+  sdk: '>=3.4.3 <4.0.0'
+
+dependencies:
+  flutter:
+    sdk: flutter
+  cupertino_icons: ^1.0.2
+  curved_navigation_bar: ^1.0.3
+  http: ^0.13.4
+  intl:
+  google_fonts: ^4.0.4
+  animated_text_kit: ^4.2.1
+  font_awesome_flutter: ^10.4.0
+  flutter_dotenv: ^6.0.1
+
+
+
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^3.0.0
+
+flutter:
+  uses-material-design: true
