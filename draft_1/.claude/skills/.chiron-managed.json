@@ -1,0 +1,12 @@
+[
+  "dart-add-unit-test",
+  "dart-fix-runtime-errors",
+  "dart-run-static-analysis",
+  "flutter-fix-layout-issues",
+  "flutter-build-responsive-layout",
+  "flutter-apply-architecture-best-practices",
+  "flutter-add-widget-test",
+  "flutter-add-integration-test",
+  "flutter-add-widget-preview",
+  "flutter-add-integration-test"
+]

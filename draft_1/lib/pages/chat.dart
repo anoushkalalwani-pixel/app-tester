@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'dart:async';
+import 'package:draft_1/theme/app_theme.dart';
 import 'package:google_fonts/google_fonts.dart'; // for Google Fonts
 
 class UserChat extends StatefulWidget {
@@ -62,16 +63,17 @@ class _ChatScreenState extends State<UserChat> {
 
   @override
   Widget build(BuildContext context) {
+    final colors = context.colors;
     return Scaffold(
       appBar: AppBar(
         title: Text(
           'AI Chat',
-          style: GoogleFonts.nunito(color: Colors.white), // white text
+          style: GoogleFonts.nunito(color: colors.onSurface), // white text
         ),
-        backgroundColor: Color.fromARGB(255, 0, 37, 68), // dark blue app bar
+        backgroundColor: colors.surface, // dark blue app bar
       ),
       body: Container(
-        color: Colors.lightBlue[100], // light blue background
+        color: colors.background, // light blue background
         child: Column(
           children: [
             Expanded(
@@ -94,6 +96,7 @@ class _ChatScreenState extends State<UserChat> {
   }
 
   Widget _buildTextComposer() {
+    final colors = context.colors;
     return Container(
       margin: EdgeInsets.symmetric(horizontal: 8.0, vertical: 8.0),
       child: Row(
@@ -101,7 +104,7 @@ class _ChatScreenState extends State<UserChat> {
           Expanded(
             child: Container(
               decoration: BoxDecoration(
-                color: Colors.white,
+                color: Theme.of(context).cardColor,
                 borderRadius: BorderRadius.circular(30.0),
                 boxShadow: [
                   BoxShadow(
@@ -118,6 +121,7 @@ class _ChatScreenState extends State<UserChat> {
                     child: TextField(
                       controller: _textController,
                       onSubmitted: _handleSubmitted,
+                      style: TextStyle(color: colors.bodyText),
                       decoration: InputDecoration(
                         hintText: "Send a message",
                         hintStyle: TextStyle(color: Color.fromARGB(255, 93, 93, 93)), // hint color
@@ -126,7 +130,7 @@ class _ChatScreenState extends State<UserChat> {
                     ),
                   ),
                   IconButton(
-                    icon: Icon(Icons.send),
+                    icon: Icon(Icons.send, color: colors.bodyText),
                     onPressed: () => _handleSubmitted(_textController.text),
                   ),
                 ],
@@ -157,7 +161,7 @@ class ChatMessage extends StatelessWidget {
             CircleAvatar(child: Text('AI')),
           Container(
             decoration: BoxDecoration(
-              color: isUser ? Color.fromARGB(255, 0, 37, 68) : Color.fromARGB(255, 93, 93, 93), // dark blue for user messages
+              color: isUser ? context.colors.surface : Color.fromARGB(255, 93, 93, 93), // dark blue for user messages
               borderRadius: BorderRadius.circular(20.0), // more curved boxes
             ),
             padding: EdgeInsets.symmetric(horizontal: 16.0, vertical: 10.0),

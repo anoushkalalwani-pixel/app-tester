@@ -7,6 +7,7 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:draft_1/model.dart'; // Assuming this is where your models are
 import 'package:draft_1/homepage.dart';
+import 'package:draft_1/theme/app_theme.dart';
 import '../globals.dart' as globals;
 
 class UserNew extends StatefulWidget {
@@ -63,15 +64,16 @@ class _UserNewState extends State<UserNew> {
 
   @override
   Widget build(BuildContext context) {
+    final colors = context.colors;
     return Scaffold(
-      backgroundColor: Colors.lightBlue[100],
+      backgroundColor: colors.background,
       appBar: AppBar(
         title: Text(
           '${_currentStep + 1} of $_totalSteps',
-          style: GoogleFonts.nunito(color: Colors.white, fontSize: 18),
+          style: GoogleFonts.nunito(color: colors.onSurface, fontSize: 18),
 
         ),
-        backgroundColor: Color.fromARGB(255, 0, 37, 68),
+        backgroundColor: colors.surface,
         centerTitle: true,
         bottom: PreferredSize(
           preferredSize: Size.fromHeight(30.0),
@@ -79,7 +81,7 @@ class _UserNewState extends State<UserNew> {
             margin: EdgeInsets.symmetric(horizontal: 20.0),
             child: LinearProgressIndicator(
               value: (_currentStep + 1) / _totalSteps,
-              color: Color.fromARGB(255, 0, 208, 90),
+              color: colors.positive,
               backgroundColor: Colors.white,
             ),
           ),
@@ -93,7 +95,7 @@ class _UserNewState extends State<UserNew> {
               margin: const EdgeInsets.only(bottom: 20),
               child: Text(
                 _questionText,
-                style: GoogleFonts.nunito(fontSize: 24, color: Color.fromARGB(255, 0, 37, 68)),
+                style: GoogleFonts.nunito(fontSize: 24, color: colors.accentText),
                 textAlign: TextAlign.center,
               ),
             ),
@@ -129,7 +131,8 @@ class _UserNewState extends State<UserNew> {
                     },
                     child: Text('Save'),
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: Color.fromARGB(255, 0, 208, 90),
+                      backgroundColor: colors.positive,
+                      foregroundColor: Colors.white,
                       padding: EdgeInsets.symmetric(horizontal: 25, vertical: 10),
                       textStyle: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
                     ),
@@ -143,13 +146,14 @@ class _UserNewState extends State<UserNew> {
   }
 
   Widget _buildCircularButton(IconData icon, VoidCallback onPressed) {
+    final colors = context.colors;
     return Container(
       decoration: BoxDecoration(
         shape: BoxShape.circle,
-        color: Color.fromARGB(255, 0, 37, 68),
+        color: colors.surface,
       ),
       child: IconButton(
-        icon: Icon(icon, color: Colors.white),
+        icon: Icon(icon, color: colors.onSurface),
         onPressed: onPressed,
       ),
     );
@@ -160,7 +164,7 @@ class _UserNewState extends State<UserNew> {
       padding: const EdgeInsets.all(20),
       margin: const EdgeInsets.symmetric(vertical: 10),
       decoration: BoxDecoration(
-        color: Color.fromARGB(255, 0, 37, 68), // Dark blue background
+        color: context.colors.surface, // Dark blue background
         borderRadius: BorderRadius.circular(15.0), // Rounded corners
       ),
       child: Center(child: child),
@@ -168,6 +172,7 @@ class _UserNewState extends State<UserNew> {
   }
 
   Widget _buildStepInput() {
+    final colors = context.colors;
     switch (_currentStep) {
       case 0:
         return TextField(
@@ -183,7 +188,7 @@ class _UserNewState extends State<UserNew> {
         return DropdownButtonHideUnderline(
           child: DropdownButton<String>(
             value: _selectedTestType,
-            dropdownColor: Color.fromARGB(255, 0, 37, 68), // Dark blue dropdown
+            dropdownColor: colors.surface, // Dark blue dropdown
             style: TextStyle(color: Colors.white),
             onChanged: (String? newValue) {
               setState(() {

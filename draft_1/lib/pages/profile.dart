@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart'; // for Google Fonts
 import 'package:flutter/cupertino.dart'; // for Cupertino Icons
 import 'package:draft_1/homepage.dart'; // assuming homepage is imported
+import 'package:draft_1/theme/app_theme.dart';
+import 'package:draft_1/theme/theme_controller.dart';
 
 class UserProfile extends StatefulWidget {
   @override
@@ -17,21 +19,22 @@ class _UserProfileFormState extends State<UserProfile> {
 
   @override
   Widget build(BuildContext context) {
+    final colors = context.colors;
     return Scaffold(
-      backgroundColor: Colors.lightBlue[100], // light blue background
+      backgroundColor: colors.background,
       appBar: AppBar(
-        backgroundColor: Color.fromARGB(255, 0, 37, 68), // dark blue app bar
+        backgroundColor: colors.surface, // dark blue app bar
         title: Text(
           'User Profile',
           style: GoogleFonts.nunito( // Source Code Pro font for title
-            color: Colors.white,
+            color: colors.onSurface,
             fontSize: 24.0,
             fontWeight: FontWeight.bold,
           ),
         ),
         actions: [
           IconButton(
-            icon: Icon(CupertinoIcons.pencil, color: Colors.white), // Pencil icon
+            icon: Icon(CupertinoIcons.pencil, color: colors.onSurface), // Pencil icon
             onPressed: () {
               // Handle edit logic
             },
@@ -52,6 +55,8 @@ class _UserProfileFormState extends State<UserProfile> {
               _buildTextField('Grade', _gradeController, isNumeric: true),
               SizedBox(height: 16),
               _buildTextField('Email', _emailController, isEmail: true),
+              SizedBox(height: 16),
+              _buildThemeToggle(colors),
               SizedBox(height: 24),
               Center(
                 child: ElevatedButton(
@@ -75,26 +80,57 @@ class _UserProfileFormState extends State<UserProfile> {
     );
   }
 
+  Widget _buildThemeToggle(AppColors colors) {
+    return Container(
+      decoration: BoxDecoration(
+        color: colors.surface,
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: SwitchListTile(
+        title: Text(
+          'Dark Mode',
+          style: GoogleFonts.nunito(
+            color: colors.onSurface,
+            fontSize: 16,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+        secondary: Icon(
+          ThemeController.instance.isDarkMode
+              ? CupertinoIcons.moon_fill
+              : CupertinoIcons.sun_max_fill,
+          color: colors.onSurface,
+        ),
+        value: ThemeController.instance.isDarkMode,
+        activeThumbColor: colors.positive,
+        onChanged: (bool value) {
+          ThemeController.instance.setDarkMode(value);
+        },
+      ),
+    );
+  }
+
   Widget _buildTextField(String label, TextEditingController controller,
       {bool isNumeric = false, bool isEmail = false}) {
+    final colors = context.colors;
     return TextFormField(
       controller: controller,
       decoration: InputDecoration(
         labelText: label,
-        labelStyle: GoogleFonts.nunito(color: Colors.white), // white label text
+        labelStyle: GoogleFonts.nunito(color: colors.onSurface), // white label text
         filled: true,
-        fillColor: Color.fromARGB(255, 0, 37, 68), // dark blue background for the text field
+        fillColor: colors.surface, // dark blue background for the text field
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12), // rounded corners
         ),
         suffixIcon: IconButton(
-          icon: Icon(CupertinoIcons.pencil, color: Colors.white), // white pencil icon
+          icon: Icon(CupertinoIcons.pencil, color: colors.onSurface), // white pencil icon
           onPressed: () {
             // handle edit
           },
         ),
       ),
-      style: GoogleFonts.nunito(color: Colors.white), // white input text
+      style: GoogleFonts.nunito(color: colors.onSurface), // white input text
       keyboardType: isNumeric ? TextInputType.number : (isEmail ? TextInputType.emailAddress : TextInputType.text),
       validator: (value) {
         if (value == null || value.isEmpty) {

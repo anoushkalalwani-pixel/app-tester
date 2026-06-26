@@ -4,6 +4,7 @@ import 'package:draft_1/pages/chat.dart';
 import 'package:draft_1/pages/home.dart';
 import 'package:draft_1/pages/profile.dart';
 import 'package:draft_1/pages/tests.dart';
+import 'package:draft_1/theme/app_theme.dart';
 import 'package:flutter/material.dart';
 
 //import 'package:curved_navigation_bar/curved_navigation_bar.dart';
@@ -36,15 +37,16 @@ class _HomePageState extends State<HomePage>{
 
   @override
   Widget build(BuildContext context) {
+    final colors = context.colors;
     return Scaffold(
       body: _pages[_selectedIndex],
-      backgroundColor: Color.fromARGB(255, 175, 230, 255),
+      backgroundColor: colors.background,
       bottomNavigationBar: CurvedNavigationBar(
          //currentIndex: _selectedIndex,
-         onTap: _navigateBottomBar, 
+         onTap: _navigateBottomBar,
          //type: BottomNavigationBarType.fixed,
-      backgroundColor: const Color.fromARGB(255, 175, 230, 255),
-      color: const Color.fromARGB(255, 0, 37, 68),
+      backgroundColor: colors.background,
+      color: colors.navBar,
 
         items: [
           Icon(Icons.home, color: Colors.white),

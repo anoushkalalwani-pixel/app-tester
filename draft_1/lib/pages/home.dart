@@ -253,6 +253,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:draft_1/globals.dart' as globals;
 import 'package:draft_1/model.dart';
 import 'package:draft_1/OpenAIAPI.dart';
+import 'package:draft_1/theme/app_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
@@ -316,7 +317,7 @@ class _TypingTextState extends State<TypingText> {
   Widget build(BuildContext context) {
     return Text(
       '$_displayText${_showCursor ? "|" : ""}',
-      style: widget.style ?? TextStyle(fontSize: 20, color: Color.fromARGB(255, 0, 37, 68)), // Apply the passed style
+      style: widget.style ?? TextStyle(fontSize: 20, color: context.colors.bodyText), // Apply the passed style
     );
   }
 }
@@ -397,13 +398,14 @@ class _TaskListScreenState extends State<UserHome> {
 
   @override
   Widget build(BuildContext context) {
+    final colors = context.colors;
     return Scaffold(
       appBar: AppBar(
         title: Text(
           'Tasks',
-          style: TextStyle(color: Colors.white),
+          style: TextStyle(color: colors.onSurface),
         ),
-        backgroundColor: Color.fromARGB(255, 0, 37, 68),
+        backgroundColor: colors.surface,
       ),
       body: haveTests
           ? isLoading
@@ -414,15 +416,16 @@ class _TaskListScreenState extends State<UserHome> {
                 text: 'Hi Anoushka! Let\'s add a test',
                 style: GoogleFonts.nunito(
                   fontSize: 20,
-                  color: Color.fromARGB(255, 50, 30, 130),
+                  color: colors.accentText,
                 ),
               ),
             ),
-      backgroundColor: Colors.lightBlue[100], // Light blue background
+      backgroundColor: colors.background, // Light blue background
     );
   }
 
   Widget _buildCalendar() {
+    final colors = context.colors;
     DateTime firstDayOfMonth = DateTime(DateTime.now().year, DateTime.now().month, DateTime.now().day);
     int firstWeekday = firstDayOfMonth.weekday; // Day of week for the 1st day of the month
     int totalDays = DateTime(DateTime.now().year, DateTime.now().month + 1, 0).day; // Total days in the month
@@ -436,7 +439,7 @@ class _TaskListScreenState extends State<UserHome> {
           alignment: Alignment.center,
           child: Text(
             DateFormat('MMMM yyyy').format(firstDayOfMonth),
-            style: GoogleFonts.nunito(fontSize: 24, fontWeight: FontWeight.bold),
+            style: GoogleFonts.nunito(fontSize: 24, fontWeight: FontWeight.bold, color: colors.bodyText),
           ),
         ),
         // Day names
@@ -445,7 +448,7 @@ class _TaskListScreenState extends State<UserHome> {
           children: List.generate(7, (index) {
             return Text(
               DateFormat.E().format(DateTime(2021, 1, index + 1)), // Use any year for day names
-              style: GoogleFonts.nunito(fontSize: 16, fontWeight: FontWeight.bold, color: Color.fromARGB(255, 0, 37, 68)),
+              style: GoogleFonts.nunito(fontSize: 16, fontWeight: FontWeight.bold, color: colors.bodyText),
             );
           }),
         ),
@@ -473,15 +476,15 @@ class _TaskListScreenState extends State<UserHome> {
                         Container(
                           margin: EdgeInsets.all(4.0),
                           decoration: BoxDecoration(
-                            color: Color.fromARGB(255, 0, 37, 68),
-                            border: Border.all(color: Colors.white, width: 1), // Add border for visual separation
+                            color: colors.surface,
+                            border: Border.all(color: colors.onSurface, width: 1), // Add border for visual separation
                           ),
                           child: Center(
                             child: Text(
                               day.toString(),
                               style: GoogleFonts.nunito(
                                 fontSize: 20,
-                                color: Colors.white, // White text for day
+                                color: colors.onSurface, // White text for day
                               ),
                             ),
                           ),
@@ -545,7 +548,7 @@ List<Widget> _buildTaskList(DateTime date) {
         return CheckboxListTile(
           title: Text(
             task.name,
-            style: GoogleFonts.nunito(color: Colors.black), // Task name styling
+            style: GoogleFonts.nunito(color: context.colors.bodyText), // Task name styling
           ),
           value: task.isCompleted,
           onChanged: (bool? value) {
