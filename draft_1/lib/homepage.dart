@@ -5,6 +5,7 @@ import 'package:draft_1/pages/coach.dart';
 import 'package:draft_1/pages/dashboard.dart';
 import 'package:draft_1/pages/flashcards.dart';
 import 'package:draft_1/pages/home.dart';
+import 'package:draft_1/pages/pomodoro.dart';
 import 'package:draft_1/pages/profile.dart';
 import 'package:draft_1/pages/tests.dart';
 import 'package:draft_1/theme/app_theme.dart';
@@ -36,6 +37,7 @@ class _HomePageState extends State<HomePage>{
     const UserCoach(),
     UserTests(),
     const UserFlashcards(),
+    const UserPomodoro(),
     UserNew(),
     UserChat(),
     UserProfile()
@@ -60,6 +62,7 @@ class _HomePageState extends State<HomePage>{
           Icon(Icons.psychology, color: colors.onSurface),
           Icon(Icons.list_alt_rounded, color: colors.onSurface),
           Icon(Icons.style, color: colors.onSurface),
+          Icon(Icons.timer, color: colors.onSurface),
           Icon(Icons.add, color: colors.onSurface),
           Icon(Icons.message, color: colors.onSurface),
           Icon(Icons.person, color: colors.onSurface),
