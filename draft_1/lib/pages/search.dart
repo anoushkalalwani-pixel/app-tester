@@ -103,17 +103,11 @@ class _FlashcardSearchScreenState extends State<FlashcardSearchScreen> {
   }
 
   Widget _buildResults(FlashcardSearchResults results) {
-    final colors = context.colors;
     if (results.isEmpty) {
-      return Center(
-        child: Padding(
-          padding: const EdgeInsets.all(AppSpacing.xl),
-          child: Text(
-            'No matches.\nTry different keywords or clear a filter.',
-            textAlign: TextAlign.center,
-            style: context.text.bodyLarge?.copyWith(color: colors.bodyText),
-          ),
-        ),
+      return const AppEmptyState(
+        icon: Icons.search_off,
+        title: 'No matches',
+        message: 'Try different keywords or clear a filter.',
       );
     }
 
@@ -242,7 +236,10 @@ class _DeckResultTile extends StatelessWidget {
         onTap: onTap,
         child: Row(
           children: [
-            Icon(Icons.style, color: colors.onSurface),
+            Hero(
+              tag: 'deck-icon-${identityHashCode(deck)}',
+              child: Icon(Icons.style, color: colors.onSurface),
+            ),
             const HGap(AppSpacing.md),
             Expanded(
               child: Column(

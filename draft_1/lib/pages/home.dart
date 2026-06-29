@@ -18,7 +18,10 @@ class TypingText extends StatefulWidget {
   final Duration speed;
   final TextStyle? style; // Optional style parameter for text customization
 
-  TypingText({required this.text, this.speed = const Duration(milliseconds: 150), this.style});
+  TypingText(
+      {required this.text,
+      this.speed = const Duration(milliseconds: 150),
+      this.style});
 
   @override
   _TypingTextState createState() => _TypingTextState();
@@ -87,7 +90,10 @@ class _TaskListScreenState extends State<UserHome> {
     int testCount = globals.tests.length - 1;
     final String testSubject = globals.tests[testCount].subject;
     final String testDate = globals.tests[testCount].testDate.toString();
-    final String daysToTest = globals.tests[testCount].testDate.difference(DateTime.now()).inDays.toString();
+    final String daysToTest = globals.tests[testCount].testDate
+        .difference(DateTime.now())
+        .inDays
+        .toString();
     final response = await openAIAPI.generateCompletion(
       'create a plan to study for a $testSubject unit test for 10th grade, the test is $daysToTest days in the future from $testDate.  please give me a task for every day starting $formattedDate.',
       300,
@@ -109,13 +115,20 @@ class _TaskListScreenState extends State<UserHome> {
       content = jsonData['study_plan'];
 
       // Generate dates for the current month
-      dates = List.generate(content.length, (index) => DateTime(DateTime.now().year, DateTime.now().month, DateTime.now().day).add(Duration(days: index)));
+      dates = List.generate(
+          content.length,
+          (index) => DateTime(
+                  DateTime.now().year, DateTime.now().month, DateTime.now().day)
+              .add(Duration(days: index)));
 
       for (var i = 0; i < content.length; i++) {
         if (globals.tasksByDate[dates[i]] != null) {
-          globals.tasksByDate[dates[i]]?.add(Task(name: content[i]["task"], isCompleted: false));
+          globals.tasksByDate[dates[i]]
+              ?.add(Task(name: content[i]["task"], isCompleted: false));
         } else {
-          globals.tasksByDate[dates[i]] = [Task(name: content[i]["task"], isCompleted: false)];
+          globals.tasksByDate[dates[i]] = [
+            Task(name: content[i]["task"], isCompleted: false)
+          ];
         }
       }
       // Persist the freshly generated plan and queue a backup.
@@ -151,12 +164,13 @@ class _TaskListScreenState extends State<UserHome> {
       appBar: AppBar(title: const Text('Tasks')),
       body: haveTests
           ? isLoading
-              ? const Center(child: CircularProgressIndicator())
+              ? const _CalendarSkeleton()
               : _buildCalendar()
           : Center(
               child: TypingText(
                 text: 'Hi Anoushka! Let\'s add a test',
-                style: context.text.titleLarge?.copyWith(color: colors.accentText),
+                style:
+                    context.text.titleLarge?.copyWith(color: colors.accentText),
               ),
             ),
     );
@@ -164,9 +178,12 @@ class _TaskListScreenState extends State<UserHome> {
 
   Widget _buildCalendar() {
     final colors = context.colors;
-    DateTime firstDayOfMonth = DateTime(DateTime.now().year, DateTime.now().month, DateTime.now().day);
-    int firstWeekday = firstDayOfMonth.weekday; // Day of week for the 1st day of the month
-    int totalDays = DateTime(DateTime.now().year, DateTime.now().month + 1, 0).day; // Total days in the month
+    DateTime firstDayOfMonth =
+        DateTime(DateTime.now().year, DateTime.now().month, DateTime.now().day);
+    int firstWeekday =
+        firstDayOfMonth.weekday; // Day of week for the 1st day of the month
+    int totalDays = DateTime(DateTime.now().year, DateTime.now().month + 1, 0)
+        .day; // Total days in the month
     int totalCells = (firstWeekday - 1) + totalDays; // Total cells in the grid
 
     return Column(
@@ -177,7 +194,8 @@ class _TaskListScreenState extends State<UserHome> {
           alignment: Alignment.center,
           child: Text(
             DateFormat('MMMM yyyy').format(firstDayOfMonth),
-            style: context.text.headlineMedium?.copyWith(color: colors.bodyText),
+            style:
+                context.text.headlineMedium?.copyWith(color: colors.bodyText),
           ),
         ),
         // Day names
@@ -185,7 +203,8 @@ class _TaskListScreenState extends State<UserHome> {
           mainAxisAlignment: MainAxisAlignment.spaceAround,
           children: List.generate(7, (index) {
             return Text(
-              DateFormat.E().format(DateTime(2021, 1, index + 1)), // Use any year for day names
+              DateFormat.E().format(
+                  DateTime(2021, 1, index + 1)), // Use any year for day names
               style: context.text.bodyLarge?.copyWith(
                 color: colors.bodyText,
                 fontWeight: FontWeight.bold,
@@ -208,41 +227,52 @@ class _TaskListScreenState extends State<UserHome> {
               } else {
                 int day = index - (firstWeekday - 1) + 1;
                 if (day <= totalDays) {
-                  DateTime date = DateTime(firstDayOfMonth.year, firstDayOfMonth.month, day);
-                  return GestureDetector(
-                    onTap: () => _showTasksForDate(date),
-                    child: Stack(
-                      alignment: Alignment.topLeft,
-                      children: [
-                        Container(
-                          margin: const EdgeInsets.all(AppSpacing.xs),
-                          decoration: BoxDecoration(
-                            color: colors.surface,
-                            border: Border.all(color: colors.onSurface, width: 1), // Add border for visual separation
-                          ),
-                          child: Center(
-                            child: Text(
-                              day.toString(),
-                              style: context.text.titleLarge?.copyWith(color: colors.onSurface),
-                            ),
-                          ),
-                        ),
-                        // Show dot if there are tasks for this day
-                        if (globals.tasksByDate[date]?.isNotEmpty ?? false)
-                          Positioned(
-                            top: 4,
-                            left: 4,
+                  DateTime date = DateTime(
+                      firstDayOfMonth.year, firstDayOfMonth.month, day);
+                  return Stack(
+                    alignment: Alignment.topLeft,
+                    children: [
+                      Padding(
+                        padding: const EdgeInsets.all(AppSpacing.xs),
+                        child: Material(
+                          color: colors.surface,
+                          child: InkWell(
+                            onTap: () {
+                              AppHaptics.selection();
+                              _showTasksForDate(date);
+                            },
                             child: Container(
-                              width: 8,
-                              height: 8,
                               decoration: BoxDecoration(
-                                color: colors.positive,
-                                shape: BoxShape.circle,
+                                border: Border.all(
+                                    color: colors.onSurface,
+                                    width: 1), // visual separation
+                              ),
+                              child: Center(
+                                child: Text(
+                                  day.toString(),
+                                  style: context.text.titleLarge
+                                      ?.copyWith(color: colors.onSurface),
+                                ),
                               ),
                             ),
                           ),
-                      ],
-                    ),
+                        ),
+                      ),
+                      // Show dot if there are tasks for this day
+                      if (globals.tasksByDate[date]?.isNotEmpty ?? false)
+                        Positioned(
+                          top: 4,
+                          left: 4,
+                          child: Container(
+                            width: 8,
+                            height: 8,
+                            decoration: BoxDecoration(
+                              color: colors.positive,
+                              shape: BoxShape.circle,
+                            ),
+                          ),
+                        ),
+                    ],
                   );
                 } else {
                   // Empty space after the last day of the month
@@ -286,7 +316,8 @@ class _TaskListScreenState extends State<UserHome> {
           return CheckboxListTile(
             title: Text(
               task.name,
-              style: context.text.bodyLarge?.copyWith(color: context.colors.bodyText),
+              style: context.text.bodyLarge
+                  ?.copyWith(color: context.colors.bodyText),
             ),
             value: task.isCompleted,
             onChanged: (bool? value) {
@@ -304,5 +335,49 @@ class _TaskListScreenState extends State<UserHome> {
         },
       );
     }).toList();
+  }
+}
+
+/// Placeholder shown while the AI study plan is being generated: a month-shaped
+/// grid of shimmering tiles so the screen keeps its layout instead of showing a
+/// bare spinner.
+class _CalendarSkeleton extends StatelessWidget {
+  const _CalendarSkeleton();
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.all(AppSpacing.lg),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          const VGap(AppSpacing.sm),
+          const Center(child: Skeleton(width: 160, height: 24)),
+          const VGap(AppSpacing.lg),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceAround,
+            children: List.generate(
+              7,
+              (_) => const Skeleton(width: 18, height: 14),
+            ),
+          ),
+          const VGap(AppSpacing.md),
+          Expanded(
+            child: GridView.builder(
+              physics: const NeverScrollableScrollPhysics(),
+              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                crossAxisCount: 7,
+                childAspectRatio: 1.0,
+              ),
+              itemCount: 35,
+              itemBuilder: (context, _) => const Padding(
+                padding: EdgeInsets.all(AppSpacing.xs),
+                child: Skeleton(height: double.infinity, radius: AppRadius.sm),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
   }
 }

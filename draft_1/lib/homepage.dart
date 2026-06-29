@@ -13,19 +13,18 @@ import 'package:flutter/material.dart';
 
 //import 'package:curved_navigation_bar/curved_navigation_bar.dart';
 
-class HomePage extends StatefulWidget{
+class HomePage extends StatefulWidget {
   const HomePage({Key? key}) : super(key: key);
 
   @override
   _HomePageState createState() => _HomePageState();
+}
 
-}  
-
-class _HomePageState extends State<HomePage>{
-
+class _HomePageState extends State<HomePage> {
   int _selectedIndex = 0;
 
-  void _navigateBottomBar(int index){
+  void _navigateBottomBar(int index) {
+    AppHaptics.selection();
     setState(() {
       _selectedIndex = index;
     });
@@ -47,14 +46,28 @@ class _HomePageState extends State<HomePage>{
   Widget build(BuildContext context) {
     final colors = context.colors;
     return Scaffold(
-      body: _pages[_selectedIndex],
+      // Fade-through between tabs so switching destinations feels smooth
+      // rather than an instant cut.
+      body: AnimatedSwitcher(
+        duration: AppDurations.medium,
+        switchInCurve: AppCurves.standard,
+        switchOutCurve: AppCurves.standard,
+        transitionBuilder: (child, animation) => FadeTransition(
+          opacity: animation,
+          child: child,
+        ),
+        child: KeyedSubtree(
+          key: ValueKey<int>(_selectedIndex),
+          child: _pages[_selectedIndex],
+        ),
+      ),
       backgroundColor: colors.background,
       bottomNavigationBar: CurvedNavigationBar(
-         //currentIndex: _selectedIndex,
-         onTap: _navigateBottomBar,
-         //type: BottomNavigationBarType.fixed,
-      backgroundColor: colors.background,
-      color: colors.navBar,
+        //currentIndex: _selectedIndex,
+        onTap: _navigateBottomBar,
+        //type: BottomNavigationBarType.fixed,
+        backgroundColor: colors.background,
+        color: colors.navBar,
 
         items: [
           Icon(Icons.home, color: colors.onSurface),

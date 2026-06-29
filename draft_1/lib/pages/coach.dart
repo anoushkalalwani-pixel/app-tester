@@ -103,19 +103,30 @@ class _UserCoachState extends State<UserCoach> {
   }
 
   Widget _buildList(BuildContext context) {
-    return ListView(
-      padding: const EdgeInsets.all(AppSpacing.lg),
-      children: [
-        _CoachHeader(aiPowered: _aiPowered, notice: _notice),
-        const VGap(AppSpacing.lg),
-        for (final rec in _recommendations) ...[
-          _RecommendationCard(
-            recommendation: rec,
-            insight: _insightBySubject[rec.subject.toLowerCase()],
-          ),
-          const VGap(AppSpacing.md),
+    final colors = context.colors;
+    // Pull down to ask the AI coach for fresh recommendations.
+    return RefreshIndicator(
+      onRefresh: _refreshWithAi,
+      color: colors.positive,
+      backgroundColor: colors.surface,
+      child: ListView(
+        padding: const EdgeInsets.all(AppSpacing.lg),
+        children: [
+          _CoachHeader(aiPowered: _aiPowered, notice: _notice),
+          const VGap(AppSpacing.lg),
+          for (var i = 0; i < _recommendations.length; i++) ...[
+            EntranceFade.staggered(
+              index: i,
+              child: _RecommendationCard(
+                recommendation: _recommendations[i],
+                insight: _insightBySubject[
+                    _recommendations[i].subject.toLowerCase()],
+              ),
+            ),
+            const VGap(AppSpacing.md),
+          ],
         ],
-      ],
+      ),
     );
   }
 }
@@ -394,8 +405,7 @@ class _EmptyState extends StatelessWidget {
             Text(
               'Your coach needs some data first',
               textAlign: TextAlign.center,
-              style:
-                  context.text.titleMedium?.copyWith(color: colors.bodyText),
+              style: context.text.titleMedium?.copyWith(color: colors.bodyText),
             ),
             const VGap(AppSpacing.sm),
             Text(

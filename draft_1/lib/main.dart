@@ -29,6 +29,10 @@ class MainApp extends StatelessWidget {
           theme: AppTheme.light,
           darkTheme: AppTheme.dark,
           themeMode: ThemeController.instance.themeMode,
+          // Cross-fade the whole palette (backgrounds, cards, text) when the
+          // user flips between light and dark, rather than snapping.
+          themeAnimationDuration: AppDurations.slow,
+          themeAnimationCurve: Curves.easeInOut,
           home: HomePage(),
         );
       },

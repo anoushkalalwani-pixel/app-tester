@@ -56,6 +56,7 @@ class _UserProfileFormState extends State<UserProfile> {
               Center(
                 child: ElevatedButton(
                   onPressed: () {
+                    AppHaptics.light();
                     Navigator.pushReplacement(context,
                         MaterialPageRoute(builder: (context) => HomePage()));
                   },
@@ -115,6 +116,7 @@ class _UserProfileFormState extends State<UserProfile> {
         value: ThemeController.instance.isDarkMode,
         activeThumbColor: colors.positive,
         onChanged: (bool value) {
+          AppHaptics.selection();
           ThemeController.instance.setDarkMode(value);
         },
       ),

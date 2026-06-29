@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import 'app_colors.dart';
+import 'app_motion.dart';
 import 'app_spacing.dart';
 
 /// Reusable visual building blocks layered on top of the theme.
@@ -43,12 +44,19 @@ class AppCard extends StatelessWidget {
     );
 
     if (onTap == null) return card;
-    return Material(
-      color: Colors.transparent,
-      child: InkWell(
-        borderRadius: borderRadius,
-        onTap: onTap,
-        child: card,
+    // Tappable cards get a ripple (InkWell), a subtle press-in scale and a
+    // light haptic tick, so they feel responsive without being flashy.
+    return PressableScale(
+      child: Material(
+        color: Colors.transparent,
+        child: InkWell(
+          borderRadius: borderRadius,
+          onTap: () {
+            AppHaptics.selection();
+            onTap!();
+          },
+          child: card,
+        ),
       ),
     );
   }

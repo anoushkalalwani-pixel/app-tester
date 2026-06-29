@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import 'app_colors.dart';
+import 'app_motion.dart';
 import 'app_spacing.dart';
 import 'app_typography.dart';
 
@@ -8,6 +9,7 @@ import 'app_typography.dart';
 // access to AppColors and the `context.colors` extension.
 export 'app_colors.dart';
 export 'app_components.dart';
+export 'app_motion.dart';
 export 'app_spacing.dart';
 export 'app_typography.dart';
 
@@ -55,6 +57,35 @@ abstract final class AppTheme {
       colorScheme: colorScheme,
       scaffoldBackgroundColor: colors.background,
       textTheme: textTheme,
+
+      // One tasteful fade-through transition for every Navigator push across
+      // all platforms, instead of the default per-platform slide/zoom.
+      pageTransitionsTheme: const PageTransitionsTheme(
+        builders: {
+          TargetPlatform.android: FadeThroughPageTransitionsBuilder(),
+          TargetPlatform.iOS: FadeThroughPageTransitionsBuilder(),
+          TargetPlatform.macOS: FadeThroughPageTransitionsBuilder(),
+          TargetPlatform.windows: FadeThroughPageTransitionsBuilder(),
+          TargetPlatform.linux: FadeThroughPageTransitionsBuilder(),
+        },
+      ),
+
+      // A consistent, slightly softer ripple for every tappable Material.
+      splashFactory: InkRipple.splashFactory,
+
+      // Floating, rounded snackbars that match the app's surfaces.
+      snackBarTheme: SnackBarThemeData(
+        behavior: SnackBarBehavior.floating,
+        backgroundColor: colors.surface,
+        contentTextStyle:
+            textTheme.bodyLarge?.copyWith(color: colors.onSurface),
+        actionTextColor: colors.positive,
+        elevation: 4,
+        insetPadding: const EdgeInsets.all(AppSpacing.lg),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(AppRadius.md),
+        ),
+      ),
 
       appBarTheme: AppBarTheme(
         backgroundColor: colors.surface,
@@ -115,9 +146,8 @@ abstract final class AppTheme {
 
       switchTheme: SwitchThemeData(
         thumbColor: WidgetStateProperty.resolveWith(
-          (states) => states.contains(WidgetState.selected)
-              ? colors.positive
-              : null,
+          (states) =>
+              states.contains(WidgetState.selected) ? colors.positive : null,
         ),
       ),
 

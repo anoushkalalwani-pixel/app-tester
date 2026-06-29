@@ -124,6 +124,7 @@ class _UserNewState extends State<UserNew> {
                 else
                   ElevatedButton(
                     onPressed: () {
+                      AppHaptics.medium();
                       createTest();
                       Navigator.pushReplacement(context,
                           MaterialPageRoute(builder: (context) => HomePage()));
@@ -148,7 +149,10 @@ class _UserNewState extends State<UserNew> {
       ),
       child: IconButton(
         icon: Icon(icon, color: colors.onSurface),
-        onPressed: onPressed,
+        onPressed: () {
+          AppHaptics.selection();
+          onPressed();
+        },
       ),
     );
   }

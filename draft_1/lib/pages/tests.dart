@@ -12,46 +12,56 @@ class UserTests extends StatelessWidget {
     final colors = context.colors;
     return Scaffold(
       appBar: AppBar(title: const Text('Tests')),
-      body: ListView.builder(
-        itemCount: globals.tests.length,
-        itemBuilder: (context, index) {
-          final test = globals.tests[index];
-          return Padding(
-            padding: const EdgeInsets.all(AppSpacing.sm),
-            child: AppCard(
-              onTap: () => _showTestDetails(context, test),
-              radius: AppRadius.sm,
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    test.subject,
-                    style: context.text.titleMedium
-                        ?.copyWith(color: colors.onSurface),
+      body: globals.tests.isEmpty
+          ? const AppEmptyState(
+              icon: Icons.event_note_outlined,
+              title: 'No tests yet',
+              message: 'Add a test from the "+" tab and it will show up here, '
+                  'ready for a study plan.',
+            )
+          : ListView.builder(
+              itemCount: globals.tests.length,
+              itemBuilder: (context, index) {
+                final test = globals.tests[index];
+                return Padding(
+                  padding: const EdgeInsets.all(AppSpacing.sm),
+                  child: EntranceFade.staggered(
+                    index: index,
+                    child: AppCard(
+                      onTap: () => _showTestDetails(context, test),
+                      radius: AppRadius.sm,
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            test.subject,
+                            style: context.text.titleMedium
+                                ?.copyWith(color: colors.onSurface),
+                          ),
+                          const VGap(AppSpacing.sm),
+                          Text(
+                            'Date: ${DateFormat('yyyy-MM-dd').format(test.testDate)}',
+                            style: context.text.bodyLarge
+                                ?.copyWith(color: colors.onSurface),
+                          ),
+                          Text(
+                            'Type: ${test.testType.toString().split('.').last}',
+                            style: context.text.bodyLarge
+                                ?.copyWith(color: colors.onSurface),
+                          ),
+                          Text(
+                            'Difficulty: '
+                            '${test.testDifficulty.toString().split('.').last}',
+                            style: context.text.bodyLarge
+                                ?.copyWith(color: colors.onSurface),
+                          ),
+                        ],
+                      ),
+                    ),
                   ),
-                  const VGap(AppSpacing.sm),
-                  Text(
-                    'Date: ${DateFormat('yyyy-MM-dd').format(test.testDate)}',
-                    style: context.text.bodyLarge
-                        ?.copyWith(color: colors.onSurface),
-                  ),
-                  Text(
-                    'Type: ${test.testType.toString().split('.').last}',
-                    style: context.text.bodyLarge
-                        ?.copyWith(color: colors.onSurface),
-                  ),
-                  Text(
-                    'Difficulty: '
-                    '${test.testDifficulty.toString().split('.').last}',
-                    style: context.text.bodyLarge
-                        ?.copyWith(color: colors.onSurface),
-                  ),
-                ],
-              ),
+                );
+              },
             ),
-          );
-        },
-      ),
     );
   }
 

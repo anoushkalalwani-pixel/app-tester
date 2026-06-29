@@ -108,7 +108,11 @@ class _PhaseChip extends StatelessWidget {
   Widget build(BuildContext context) {
     final colors = context.colors;
     final color = phase.isBreak ? colors.positive : colors.surface;
-    return Container(
+    // Smoothly recolour the pill (and cross-fade the label) when the interval
+    // changes between focus and break.
+    return AnimatedContainer(
+      duration: AppDurations.medium,
+      curve: AppCurves.standard,
       padding: const EdgeInsets.symmetric(
         horizontal: AppSpacing.xl,
         vertical: AppSpacing.sm,
@@ -117,9 +121,13 @@ class _PhaseChip extends StatelessWidget {
         color: color,
         borderRadius: BorderRadius.circular(AppRadius.pill),
       ),
-      child: Text(
-        phase.label,
-        style: context.text.titleMedium?.copyWith(color: colors.onSurface),
+      child: AnimatedSwitcher(
+        duration: AppDurations.fast,
+        child: Text(
+          phase.label,
+          key: ValueKey(phase.label),
+          style: context.text.titleMedium?.copyWith(color: colors.onSurface),
+        ),
       ),
     );
   }
@@ -159,8 +167,7 @@ class _TimerRing extends StatelessWidget {
               ),
               Text(
                 controller.isPaused ? 'Paused' : controller.phase.label,
-                style:
-                    context.text.bodyLarge?.copyWith(color: colors.bodyText),
+                style: context.text.bodyLarge?.copyWith(color: colors.bodyText),
               ),
             ],
           ),
@@ -185,21 +192,30 @@ class _Controls extends StatelessWidget {
             if (controller.isIdle)
               ElevatedButton.icon(
                 style: AppButtons.positive(context),
-                onPressed: controller.start,
+                onPressed: () {
+                  AppHaptics.light();
+                  controller.start();
+                },
                 icon: const Icon(Icons.play_arrow),
                 label: const Text('Start'),
               )
             else if (controller.isRunning)
               ElevatedButton.icon(
                 style: AppButtons.positive(context),
-                onPressed: controller.pause,
+                onPressed: () {
+                  AppHaptics.light();
+                  controller.pause();
+                },
                 icon: const Icon(Icons.pause),
                 label: const Text('Pause'),
               )
             else
               ElevatedButton.icon(
                 style: AppButtons.positive(context),
-                onPressed: controller.resume,
+                onPressed: () {
+                  AppHaptics.light();
+                  controller.resume();
+                },
                 icon: const Icon(Icons.play_arrow),
                 label: const Text('Resume'),
               ),
@@ -210,13 +226,23 @@ class _Controls extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             TextButton.icon(
-              onPressed: controller.isIdle ? null : controller.skip,
+              onPressed: controller.isIdle
+                  ? null
+                  : () {
+                      AppHaptics.selection();
+                      controller.skip();
+                    },
               icon: const Icon(Icons.skip_next),
               label: const Text('Skip'),
             ),
             const HGap(AppSpacing.lg),
             TextButton.icon(
-              onPressed: controller.isIdle ? null : controller.reset,
+              onPressed: controller.isIdle
+                  ? null
+                  : () {
+                      AppHaptics.selection();
+                      controller.reset();
+                    },
               icon: const Icon(Icons.restart_alt),
               label: const Text('Reset'),
             ),
@@ -335,8 +361,7 @@ class _Stepper extends StatelessWidget {
           Expanded(
             child: Text(
               label,
-              style:
-                  context.text.bodyLarge?.copyWith(color: colors.bodyText),
+              style: context.text.bodyLarge?.copyWith(color: colors.bodyText),
             ),
           ),
           IconButton(
@@ -348,8 +373,7 @@ class _Stepper extends StatelessWidget {
             child: Text(
               suffix == null ? '$value' : '$value $suffix',
               textAlign: TextAlign.center,
-              style:
-                  context.text.titleMedium?.copyWith(color: colors.bodyText),
+              style: context.text.titleMedium?.copyWith(color: colors.bodyText),
             ),
           ),
           IconButton(

@@ -62,7 +62,8 @@ class _SectionTitle extends StatelessWidget {
   Widget build(BuildContext context) {
     return Text(
       text,
-      style: context.text.headlineSmall?.copyWith(color: context.colors.bodyText),
+      style:
+          context.text.headlineSmall?.copyWith(color: context.colors.bodyText),
     );
   }
 }
@@ -125,15 +126,17 @@ class _StatCardGrid extends StatelessWidget {
             : width >= 680
                 ? 3
                 : 2;
-        final cardWidth =
-            (width - spacing * (columns - 1)) / columns;
+        final cardWidth = (width - spacing * (columns - 1)) / columns;
 
         return Wrap(
           spacing: spacing,
           runSpacing: spacing,
           children: [
-            for (final card in cards)
-              SizedBox(width: cardWidth, child: card),
+            for (var i = 0; i < cards.length; i++)
+              SizedBox(
+                width: cardWidth,
+                child: EntranceFade.staggered(index: i, child: cards[i]),
+              ),
           ],
         );
       },
@@ -176,7 +179,8 @@ class _StatCard extends StatelessWidget {
             alignment: Alignment.centerLeft,
             child: Text(
               value,
-              style: context.text.headlineMedium?.copyWith(color: colors.onSurface),
+              style: context.text.headlineMedium
+                  ?.copyWith(color: colors.onSurface),
             ),
           ),
           const VGap(AppSpacing.xs),
@@ -226,20 +230,29 @@ class _StudyTimeBarChart extends StatelessWidget {
       children: [
         SizedBox(
           height: 160,
-          child: Row(
-            crossAxisAlignment: CrossAxisAlignment.end,
-            children: [
-              for (final d in daily)
-                Expanded(
-                  child: _Bar(
-                    label: DateFormat.E().format(d.day).substring(0, 1),
-                    valueLabel: d.studyMinutes == 0 ? '' : '${d.studyMinutes}',
-                    fraction:
-                        maxMinutes == 0 ? 0 : d.studyMinutes / maxMinutes,
-                    color: colors.positive,
+          // Grow the bars up from the baseline on first paint.
+          child: TweenAnimationBuilder<double>(
+            tween: Tween(begin: 0, end: 1),
+            duration: AppDurations.slow,
+            curve: AppCurves.standard,
+            builder: (context, t, _) => Row(
+              crossAxisAlignment: CrossAxisAlignment.end,
+              children: [
+                for (final d in daily)
+                  Expanded(
+                    child: _Bar(
+                      label: DateFormat.E().format(d.day).substring(0, 1),
+                      valueLabel:
+                          d.studyMinutes == 0 ? '' : '${d.studyMinutes}',
+                      fraction: (maxMinutes == 0
+                              ? 0.0
+                              : d.studyMinutes / maxMinutes) *
+                          t,
+                      color: colors.positive,
+                    ),
                   ),
-                ),
-            ],
+              ],
+            ),
           ),
         ),
         const VGap(AppSpacing.sm),
@@ -340,12 +353,18 @@ class _CardsReviewedLineChart extends StatelessWidget {
         SizedBox(
           height: 150,
           width: double.infinity,
-          child: CustomPaint(
-            painter: _LineChartPainter(
-              values: values,
-              maxValue: maxValue,
-              lineColor: colors.positive,
-              dotColor: colors.onSurface,
+          // Sweep the line up toward its real values on first paint.
+          child: TweenAnimationBuilder<double>(
+            tween: Tween(begin: 0, end: 1),
+            duration: AppDurations.slow,
+            curve: AppCurves.standard,
+            builder: (context, t, _) => CustomPaint(
+              painter: _LineChartPainter(
+                values: [for (final v in values) v * t],
+                maxValue: maxValue,
+                lineColor: colors.positive,
+                dotColor: colors.onSurface,
+              ),
             ),
           ),
         ),
@@ -393,9 +412,7 @@ class _LineChartPainter extends CustomPainter {
     final chartHeight = size.height - topPad - bottomPad;
     final max = maxValue <= 0 ? 1.0 : maxValue;
 
-    final step = values.length == 1
-        ? 0.0
-        : size.width / (values.length - 1);
+    final step = values.length == 1 ? 0.0 : size.width / (values.length - 1);
 
     final points = <Offset>[
       for (var i = 0; i < values.length; i++)
@@ -475,18 +492,24 @@ class _AccuracyCard extends StatelessWidget {
           SizedBox(
             width: 110,
             height: 110,
-            child: CustomPaint(
-              painter: _DonutPainter(
-                fraction: accuracy,
-                trackColor: colors.onSurface.withValues(alpha: 0.15),
-                progressColor: colors.positive,
-              ),
-              child: Center(
-                child: Text(
-                  '${(accuracy * 100).round()}%',
-                  style: context.text.headlineSmall?.copyWith(
-                    color: colors.onSurface,
-                    fontSize: 22,
+            // Sweep the arc and count the percentage up on first paint.
+            child: TweenAnimationBuilder<double>(
+              tween: Tween(begin: 0, end: accuracy),
+              duration: AppDurations.slow,
+              curve: AppCurves.standard,
+              builder: (context, value, _) => CustomPaint(
+                painter: _DonutPainter(
+                  fraction: value,
+                  trackColor: colors.onSurface.withValues(alpha: 0.15),
+                  progressColor: colors.positive,
+                ),
+                child: Center(
+                  child: Text(
+                    '${(value * 100).round()}%',
+                    style: context.text.headlineSmall?.copyWith(
+                      color: colors.onSurface,
+                      fontSize: 22,
+                    ),
                   ),
                 ),
               ),

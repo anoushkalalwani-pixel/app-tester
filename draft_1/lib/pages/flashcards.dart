@@ -48,19 +48,21 @@ class _UserFlashcardsState extends State<UserFlashcards> {
         ],
       ),
       floatingActionButton: FloatingActionButton.extended(
-        onPressed: _openGenerator,
+        onPressed: () {
+          AppHaptics.light();
+          _openGenerator();
+        },
         backgroundColor: colors.positive,
         foregroundColor: colors.onSurface,
         icon: const Icon(Icons.auto_awesome),
         label: const Text('Generate'),
       ),
       body: globals.decks.isEmpty
-          ? Center(
-              child: Text(
-                'No decks yet.\nTap Generate to create flashcards from your notes.',
-                textAlign: TextAlign.center,
-                style: context.text.bodyLarge?.copyWith(color: colors.bodyText),
-              ),
+          ? const AppEmptyState(
+              icon: Icons.style_outlined,
+              title: 'No decks yet',
+              message:
+                  'Tap Generate to turn your notes into flashcards with AI.',
             )
           : ListView.builder(
               padding: const EdgeInsets.symmetric(vertical: AppSpacing.sm),
@@ -72,44 +74,50 @@ class _UserFlashcardsState extends State<UserFlashcards> {
                     horizontal: AppSpacing.sm,
                     vertical: AppSpacing.xs,
                   ),
-                  child: AppCard(
-                    radius: AppRadius.sm,
-                    onTap: () async {
-                      await Navigator.of(context).push(
-                        MaterialPageRoute(
-                          builder: (_) => DeckDetailScreen(deck: deck),
-                        ),
-                      );
-                      if (mounted) setState(() {});
-                    },
-                    child: Row(
-                      children: [
-                        Icon(Icons.style, color: colors.onSurface),
-                        const HGap(AppSpacing.md),
-                        Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                deck.name,
-                                style: context.text.titleMedium
-                                    ?.copyWith(color: colors.onSurface),
-                              ),
-                              if (deck.tags.isNotEmpty) ...[
-                                const VGap(AppSpacing.xs),
-                                TagChips(tags: deck.tags),
-                              ],
-                            ],
+                  child: EntranceFade.staggered(
+                    index: index,
+                    child: AppCard(
+                      radius: AppRadius.sm,
+                      onTap: () async {
+                        await Navigator.of(context).push(
+                          MaterialPageRoute(
+                            builder: (_) => DeckDetailScreen(deck: deck),
                           ),
-                        ),
-                        const HGap(AppSpacing.sm),
-                        Text(
-                          '${deck.cards.length} '
-                          '${deck.cards.length == 1 ? 'card' : 'cards'}',
-                          style: context.text.bodyLarge
-                              ?.copyWith(color: colors.onSurface),
-                        ),
-                      ],
+                        );
+                        if (mounted) setState(() {});
+                      },
+                      child: Row(
+                        children: [
+                          Hero(
+                            tag: 'deck-icon-${identityHashCode(deck)}',
+                            child: Icon(Icons.style, color: colors.onSurface),
+                          ),
+                          const HGap(AppSpacing.md),
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  deck.name,
+                                  style: context.text.titleMedium
+                                      ?.copyWith(color: colors.onSurface),
+                                ),
+                                if (deck.tags.isNotEmpty) ...[
+                                  const VGap(AppSpacing.xs),
+                                  TagChips(tags: deck.tags),
+                                ],
+                              ],
+                            ),
+                          ),
+                          const HGap(AppSpacing.sm),
+                          Text(
+                            '${deck.cards.length} '
+                            '${deck.cards.length == 1 ? 'card' : 'cards'}',
+                            style: context.text.bodyLarge
+                                ?.copyWith(color: colors.onSurface),
+                          ),
+                        ],
+                      ),
                     ),
                   ),
                 );
@@ -146,10 +154,11 @@ class _GenerateFlashcardsScreenState extends State<GenerateFlashcardsScreen> {
       return;
     }
 
+    AppHaptics.light();
     setState(() => _isGenerating = true);
     try {
-      final cards = await OpenAIAPI()
-          .generateFlashcards(notes, count: _count.round());
+      final cards =
+          await OpenAIAPI().generateFlashcards(notes, count: _count.round());
       if (!mounted) return;
       if (cards.isEmpty) {
         _showSnack('The AI did not return any flashcards. Try richer notes.');
@@ -170,8 +179,7 @@ class _GenerateFlashcardsScreenState extends State<GenerateFlashcardsScreen> {
   }
 
   void _showSnack(String message) {
-    ScaffoldMessenger.of(context)
-        .showSnackBar(SnackBar(content: Text(message)));
+    showAppSnackBar(context, message);
   }
 
   @override
@@ -186,8 +194,7 @@ class _GenerateFlashcardsScreenState extends State<GenerateFlashcardsScreen> {
         children: [
           Text(
             'Paste your notes',
-            style:
-                context.text.titleMedium?.copyWith(color: colors.accentText),
+            style: context.text.titleMedium?.copyWith(color: colors.accentText),
           ),
           const VGap(AppSpacing.md),
           AppCard(
@@ -290,11 +297,12 @@ class _ReviewFlashcardsScreenState extends State<ReviewFlashcardsScreen> {
     SyncService.instance.markDirty();
 
     if (!mounted) return;
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text('Saved ${selected.length} '
-            '${selected.length == 1 ? 'card' : 'cards'} to "${deck.name}".'),
-      ),
+    AppHaptics.medium();
+    showAppSnackBar(
+      context,
+      'Saved ${selected.length} '
+      '${selected.length == 1 ? 'card' : 'cards'} to "${deck.name}".',
+      icon: Icons.check_circle_outline,
     );
     Navigator.of(context).pop(true);
   }
@@ -413,8 +421,8 @@ class _ReviewFlashcardsScreenState extends State<ReviewFlashcardsScreen> {
                         // Keep / drop this card from the save set.
                         Checkbox(
                           value: card.keep,
-                          onChanged: (value) => setState(
-                              () => card.keep = value ?? true),
+                          onChanged: (value) =>
+                              setState(() => card.keep = value ?? true),
                         ),
                         IconButton(
                           tooltip: 'Remove',
@@ -428,8 +436,7 @@ class _ReviewFlashcardsScreenState extends State<ReviewFlashcardsScreen> {
                     TextField(
                       controller: card.question,
                       style: fieldStyle,
-                      decoration:
-                          AppInputs.onCard(context, hint: 'Question'),
+                      decoration: AppInputs.onCard(context, hint: 'Question'),
                     ),
                     const Divider(),
                     TextField(
@@ -518,6 +525,28 @@ class _DeckDetailScreenState extends State<DeckDetailScreen> {
           : ListView(
               padding: const EdgeInsets.all(AppSpacing.sm),
               children: [
+                Padding(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: AppSpacing.xs,
+                    vertical: AppSpacing.sm,
+                  ),
+                  child: Row(
+                    children: [
+                      Hero(
+                        tag: 'deck-icon-${identityHashCode(deck)}',
+                        child:
+                            Icon(Icons.style, color: colors.bodyText, size: 28),
+                      ),
+                      const HGap(AppSpacing.md),
+                      Text(
+                        '${deck.cards.length} '
+                        '${deck.cards.length == 1 ? 'card' : 'cards'}',
+                        style: context.text.bodyLarge
+                            ?.copyWith(color: colors.bodyText),
+                      ),
+                    ],
+                  ),
+                ),
                 if (deck.tags.isNotEmpty)
                   Padding(
                     padding: const EdgeInsets.symmetric(
@@ -530,40 +559,43 @@ class _DeckDetailScreenState extends State<DeckDetailScreen> {
                   Padding(
                     padding:
                         const EdgeInsets.symmetric(vertical: AppSpacing.xs),
-                    child: AppCard(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Row(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Expanded(
-                                child: Text(
-                                  card.question,
-                                  style: context.text.titleMedium
-                                      ?.copyWith(color: colors.onSurface),
+                    child: EntranceFade.staggered(
+                      index: deck.cards.indexOf(card),
+                      child: AppCard(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Row(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Expanded(
+                                  child: Text(
+                                    card.question,
+                                    style: context.text.titleMedium
+                                        ?.copyWith(color: colors.onSurface),
+                                  ),
                                 ),
-                              ),
-                              IconButton(
-                                tooltip: 'Edit tags',
-                                visualDensity: VisualDensity.compact,
-                                icon: Icon(Icons.label_outline,
-                                    color: colors.onSurface),
-                                onPressed: () => _editCardTags(card),
-                              ),
-                            ],
-                          ),
-                          const VGap(AppSpacing.sm),
-                          Text(
-                            card.answer,
-                            style: context.text.bodyLarge
-                                ?.copyWith(color: colors.onSurface),
-                          ),
-                          if (card.tags.isNotEmpty) ...[
+                                IconButton(
+                                  tooltip: 'Edit tags',
+                                  visualDensity: VisualDensity.compact,
+                                  icon: Icon(Icons.label_outline,
+                                      color: colors.onSurface),
+                                  onPressed: () => _editCardTags(card),
+                                ),
+                              ],
+                            ),
                             const VGap(AppSpacing.sm),
-                            TagChips(tags: card.tags),
+                            Text(
+                              card.answer,
+                              style: context.text.bodyLarge
+                                  ?.copyWith(color: colors.onSurface),
+                            ),
+                            if (card.tags.isNotEmpty) ...[
+                              const VGap(AppSpacing.sm),
+                              TagChips(tags: card.tags),
+                            ],
                           ],
-                        ],
+                        ),
                       ),
                     ),
                   ),
