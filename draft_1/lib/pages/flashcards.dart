@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:draft_1/globals.dart' as globals;
 import 'package:draft_1/model.dart';
 import 'package:draft_1/OpenAIAPI.dart';
+import 'package:draft_1/sync/sync_service.dart';
 import 'package:draft_1/theme/app_theme.dart';
 
 /// Decks home: lists every saved [Deck] and is the entry point for generating
@@ -256,6 +257,8 @@ class _ReviewFlashcardsScreenState extends State<ReviewFlashcardsScreen> {
       if (question.isEmpty || answer.isEmpty) continue;
       deck.cards.add(Flashcard(question: question, answer: answer));
     }
+    // Persist the saved cards (and any new deck) and queue a backup.
+    SyncService.instance.markDirty();
 
     if (!mounted) return;
     ScaffoldMessenger.of(context).showSnackBar(
@@ -333,6 +336,7 @@ class _ReviewFlashcardsScreenState extends State<ReviewFlashcardsScreen> {
     if (name == null || name.isEmpty) return null;
     final deck = Deck(name: name);
     globals.decks.add(deck);
+    SyncService.instance.markDirty();
     return deck;
   }
 

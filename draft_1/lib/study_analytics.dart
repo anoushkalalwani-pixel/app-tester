@@ -34,6 +34,14 @@ class StudyAnalytics {
   /// All recorded study sessions, most-recent last.
   final List<StudySession> sessions = _sampleSessions();
 
+  /// Replaces all recorded sessions with [restored]. Used when loading a
+  /// locally-persisted snapshot or restoring a backup from the cloud.
+  void replaceSessions(Iterable<StudySession> restored) {
+    sessions
+      ..clear()
+      ..addAll(restored);
+  }
+
   // --- Headline metrics -----------------------------------------------------
 
   /// Total time spent studying across every session.

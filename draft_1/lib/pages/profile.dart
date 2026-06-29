@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart'; // for Cupertino Icons
 import 'package:draft_1/homepage.dart'; // assuming homepage is imported
+import 'package:draft_1/pages/sync_settings.dart';
 import 'package:draft_1/theme/app_theme.dart';
 import 'package:draft_1/theme/theme_controller.dart';
 
@@ -49,6 +50,8 @@ class _UserProfileFormState extends State<UserProfile> {
               _buildTextField('Email', _emailController, isEmail: true),
               const VGap(AppSpacing.lg),
               _buildThemeToggle(colors),
+              const VGap(AppSpacing.lg),
+              _buildCloudSyncTile(colors),
               const VGap(AppSpacing.xxl),
               Center(
                 child: ElevatedButton(
@@ -61,6 +64,31 @@ class _UserProfileFormState extends State<UserProfile> {
               ),
             ],
           ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildCloudSyncTile(AppColors colors) {
+    return AppCard(
+      padding: EdgeInsets.zero,
+      radius: AppRadius.md,
+      child: ListTile(
+        leading: Icon(Icons.cloud_sync, color: colors.onSurface),
+        title: Text(
+          'Cloud sync',
+          style: context.text.titleMedium?.copyWith(
+            color: colors.onSurface,
+            fontSize: 16,
+          ),
+        ),
+        subtitle: Text(
+          'Back up and restore your study data',
+          style: context.text.bodyLarge?.copyWith(color: colors.onSurface),
+        ),
+        trailing: Icon(CupertinoIcons.chevron_right, color: colors.onSurface),
+        onTap: () => Navigator.of(context).push(
+          MaterialPageRoute(builder: (_) => const SyncSettingsScreen()),
         ),
       ),
     );

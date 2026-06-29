@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:draft_1/model.dart'; // Assuming this is where your models are
 import 'package:draft_1/homepage.dart';
 import 'package:draft_1/theme/app_theme.dart';
+import 'package:draft_1/sync/sync_service.dart';
 import '../globals.dart' as globals;
 
 class UserNew extends StatefulWidget {
@@ -325,5 +326,7 @@ class _UserNewState extends State<UserNew> {
     );
 
     globals.tests.add(test);
+    // Persist locally and queue a cloud backup (if sync is enabled).
+    SyncService.instance.markDirty();
   }
 }

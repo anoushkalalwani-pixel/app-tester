@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:draft_1/globals.dart' as globals;
 import 'package:draft_1/model.dart';
 import 'package:draft_1/OpenAIAPI.dart';
+import 'package:draft_1/sync/sync_service.dart';
 import 'package:draft_1/theme/app_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
@@ -117,6 +118,8 @@ class _TaskListScreenState extends State<UserHome> {
           globals.tasksByDate[dates[i]] = [Task(name: content[i]["task"], isCompleted: false)];
         }
       }
+      // Persist the freshly generated plan and queue a backup.
+      SyncService.instance.markDirty();
     } catch (e) {
       print("Error: $e");
     } finally {
@@ -292,6 +295,8 @@ class _TaskListScreenState extends State<UserHome> {
                   task.isCompleted = value;
                 }
               });
+              // Persist the completion change and queue a backup.
+              SyncService.instance.markDirty();
               // Trigger the outer widget's rebuild as well to ensure everything is consistent
               this.setState(() {});
             },

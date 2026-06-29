@@ -3,6 +3,16 @@
 enum TestType { unit, quiz, finals }
 enum TestDifficulty { veryeasy, easy, normal, hard, veryhard }
 
+/// Resolves an enum value from its [Enum.name], falling back to [fallback] when
+/// the stored name is missing or unrecognised. Used when restoring models from
+/// JSON so a renamed or corrupt value never crashes a sync/restore.
+T enumByName<T extends Enum>(List<T> values, Object? name, T fallback) {
+  for (final value in values) {
+    if (value.name == name) return value;
+  }
+  return fallback;
+}
+
 class Test {
   String _subject = "unspecified";
   DateTime _testDate = DateTime.now();
@@ -59,6 +69,29 @@ class Test {
       _targetGrade = newTargetGrade;
     }
   }
+
+  /// Serialises the test for local persistence and cloud backup.
+  Map<String, dynamic> toJson() => {
+        'subject': _subject,
+        'testDate': _testDate.toIso8601String(),
+        'testType': _testType.name,
+        'testDifficulty': _testDifficulty.name,
+        'currentGrade': _currentGrade,
+        'targetGrade': _targetGrade,
+      };
+
+  /// Rebuilds a test from its [toJson] form. Missing or malformed fields fall
+  /// back to sensible defaults so a single bad record never breaks a restore.
+  factory Test.fromJson(Map<String, dynamic> json) => Test(
+        (json['subject'] ?? 'unspecified').toString(),
+        DateTime.tryParse(json['testDate']?.toString() ?? '') ??
+            DateTime.now(),
+        enumByName(TestType.values, json['testType'], TestType.unit),
+        enumByName(
+            TestDifficulty.values, json['testDifficulty'], TestDifficulty.normal),
+        (json['currentGrade'] as num?)?.toInt() ?? 0,
+        (json['targetGrade'] as num?)?.toInt() ?? 100,
+      );
 }
 
 class StudyPlan {
@@ -98,6 +131,16 @@ class Task {
   bool isCompleted;
 
   Task({required this.name, this.isCompleted = false});
+
+  Map<String, dynamic> toJson() => {
+        'name': name,
+        'isCompleted': isCompleted,
+      };
+
+  factory Task.fromJson(Map<String, dynamic> json) => Task(
+        name: (json['name'] ?? '').toString(),
+        isCompleted: json['isCompleted'] == true,
+      );
 }
 
 /// A single question/answer flashcard.
@@ -117,6 +160,11 @@ class Flashcard {
         question: (json['question'] ?? json['front'] ?? '').toString().trim(),
         answer: (json['answer'] ?? json['back'] ?? '').toString().trim(),
       );
+
+  Map<String, dynamic> toJson() => {
+        'question': question,
+        'answer': answer,
+      };
 }
 
 /// A named collection of [Flashcard]s. AI-generated cards are reviewed and then
@@ -126,6 +174,19 @@ class Deck {
   final List<Flashcard> cards;
 
   Deck({required this.name, List<Flashcard>? cards}) : cards = cards ?? [];
+
+  Map<String, dynamic> toJson() => {
+        'name': name,
+        'cards': [for (final card in cards) card.toJson()],
+      };
+
+  factory Deck.fromJson(Map<String, dynamic> json) => Deck(
+        name: (json['name'] ?? 'Untitled').toString(),
+        cards: [
+          for (final raw in (json['cards'] as List? ?? const []))
+            if (raw is Map<String, dynamic>) Flashcard.fromJson(raw),
+        ],
+      );
 }
 
 /// A single completed study session, used to power the analytics dashboard.
@@ -156,4 +217,21 @@ class StudySession {
   /// Fraction of reviewed cards that were correct, in the range 0.0 – 1.0.
   double get accuracy =>
       cardsReviewed == 0 ? 0 : correctAnswers / cardsReviewed;
+
+  Map<String, dynamic> toJson() => {
+        'date': date.toIso8601String(),
+        'subject': subject,
+        'durationMinutes': durationMinutes,
+        'cardsReviewed': cardsReviewed,
+        'correctAnswers': correctAnswers,
+      };
+
+  factory StudySession.fromJson(Map<String, dynamic> json) => StudySession(
+        date: DateTime.tryParse(json['date']?.toString() ?? '') ??
+            DateTime.now(),
+        subject: (json['subject'] ?? 'unspecified').toString(),
+        durationMinutes: (json['durationMinutes'] as num?)?.toInt() ?? 0,
+        cardsReviewed: (json['cardsReviewed'] as num?)?.toInt() ?? 0,
+        correctAnswers: (json['correctAnswers'] as num?)?.toInt() ?? 0,
+      );
 }

@@ -1,11 +1,15 @@
 import 'package:flutter/material.dart';
 import 'homepage.dart';
+import 'sync/sync_service.dart';
 import 'theme/app_theme.dart';
 import 'theme/theme_controller.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await ThemeController.instance.load();
+  // Loads any locally-persisted study data into memory (offline-first) and,
+  // when enabled, reconciles it with the cloud backup in the background.
+  await SyncService.instance.init();
   runApp(const MainApp());
 }
 
