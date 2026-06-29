@@ -2,6 +2,7 @@ import 'package:curved_navigation_bar/curved_navigation_bar.dart';
 import 'package:draft_1/pages/add.dart';
 import 'package:draft_1/pages/chat.dart';
 import 'package:draft_1/pages/dashboard.dart';
+import 'package:draft_1/pages/flashcards.dart';
 import 'package:draft_1/pages/home.dart';
 import 'package:draft_1/pages/profile.dart';
 import 'package:draft_1/pages/tests.dart';
@@ -32,6 +33,7 @@ class _HomePageState extends State<HomePage>{
     UserHome(),
     const UserDashboard(),
     UserTests(),
+    const UserFlashcards(),
     UserNew(),
     UserChat(),
     UserProfile()
@@ -54,6 +56,7 @@ class _HomePageState extends State<HomePage>{
           Icon(Icons.home, color: colors.onSurface),
           Icon(Icons.insights, color: colors.onSurface),
           Icon(Icons.list_alt_rounded, color: colors.onSurface),
+          Icon(Icons.style, color: colors.onSurface),
           Icon(Icons.add, color: colors.onSurface),
           Icon(Icons.message, color: colors.onSurface),
           Icon(Icons.person, color: colors.onSurface),

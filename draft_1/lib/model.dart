@@ -100,6 +100,34 @@ class Task {
   Task({required this.name, this.isCompleted = false});
 }
 
+/// A single question/answer flashcard.
+///
+/// Fields are mutable so the user can tweak AI-generated cards on the review
+/// screen before they are saved into a [Deck].
+class Flashcard {
+  String question;
+  String answer;
+
+  Flashcard({required this.question, required this.answer});
+
+  /// Builds a card from a single `{"question": ..., "answer": ...}` object as
+  /// returned by the AI provider. Missing fields fall back to empty strings so
+  /// a malformed entry never crashes the parse.
+  factory Flashcard.fromJson(Map<String, dynamic> json) => Flashcard(
+        question: (json['question'] ?? json['front'] ?? '').toString().trim(),
+        answer: (json['answer'] ?? json['back'] ?? '').toString().trim(),
+      );
+}
+
+/// A named collection of [Flashcard]s. AI-generated cards are reviewed and then
+/// appended into either an existing deck or a brand new one.
+class Deck {
+  String name;
+  final List<Flashcard> cards;
+
+  Deck({required this.name, List<Flashcard>? cards}) : cards = cards ?? [];
+}
+
 /// A single completed study session, used to power the analytics dashboard.
 class StudySession {
   /// The day (and time) the session took place.

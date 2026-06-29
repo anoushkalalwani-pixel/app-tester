@@ -5,6 +5,13 @@ import "package:draft_1/model.dart";
 Map<DateTime, List<Task>> tasksByDate = {};
 List<Test> tests = [];
 
+/// Flashcard decks available across the app. Seeded with a couple of starter
+/// decks so AI-generated cards can be saved into an existing deck right away.
+List<Deck> decks = [
+  Deck(name: 'General'),
+  Deck(name: 'Chemistry'),
+];
+
 
        const String msg = '''
               {
