@@ -143,41 +143,75 @@ class Task {
       );
 }
 
+/// Parses a stored `tags` value into a clean, de-duplicated list.
+///
+/// Accepts the JSON list written by [Flashcard.toJson] / [Deck.toJson], trims
+/// whitespace, drops empties, and removes case-insensitive duplicates while
+/// preserving the original ordering and casing of the first occurrence. Any
+/// non-list value (a missing field on older payloads, or corrupt data) yields
+/// an empty list so a restore never crashes.
+List<String> parseTags(Object? raw) {
+  if (raw is! List) return [];
+  final seen = <String>{};
+  final tags = <String>[];
+  for (final item in raw) {
+    final tag = item.toString().trim();
+    if (tag.isEmpty) continue;
+    if (seen.add(tag.toLowerCase())) tags.add(tag);
+  }
+  return tags;
+}
+
 /// A single question/answer flashcard.
 ///
 /// Fields are mutable so the user can tweak AI-generated cards on the review
-/// screen before they are saved into a [Deck].
+/// screen before they are saved into a [Deck], and add free-form [tags] used by
+/// the search & filtering screen.
 class Flashcard {
   String question;
   String answer;
+  List<String> tags;
 
-  Flashcard({required this.question, required this.answer});
+  Flashcard({
+    required this.question,
+    required this.answer,
+    List<String>? tags,
+  }) : tags = tags ?? [];
 
   /// Builds a card from a single `{"question": ..., "answer": ...}` object as
   /// returned by the AI provider. Missing fields fall back to empty strings so
-  /// a malformed entry never crashes the parse.
+  /// a malformed entry never crashes the parse. [tags] are optional and absent
+  /// on AI output and older payloads.
   factory Flashcard.fromJson(Map<String, dynamic> json) => Flashcard(
         question: (json['question'] ?? json['front'] ?? '').toString().trim(),
         answer: (json['answer'] ?? json['back'] ?? '').toString().trim(),
+        tags: parseTags(json['tags']),
       );
 
   Map<String, dynamic> toJson() => {
         'question': question,
         'answer': answer,
+        'tags': tags,
       };
 }
 
 /// A named collection of [Flashcard]s. AI-generated cards are reviewed and then
-/// appended into either an existing deck or a brand new one.
+/// appended into either an existing deck or a brand new one. Decks can carry
+/// their own [tags] (e.g. "biology", "exam") that the search screen treats as
+/// applying to every card inside the deck.
 class Deck {
   String name;
   final List<Flashcard> cards;
+  List<String> tags;
 
-  Deck({required this.name, List<Flashcard>? cards}) : cards = cards ?? [];
+  Deck({required this.name, List<Flashcard>? cards, List<String>? tags})
+      : cards = cards ?? [],
+        tags = tags ?? [];
 
   Map<String, dynamic> toJson() => {
         'name': name,
         'cards': [for (final card in cards) card.toJson()],
+        'tags': tags,
       };
 
   factory Deck.fromJson(Map<String, dynamic> json) => Deck(
@@ -186,6 +220,7 @@ class Deck {
           for (final raw in (json['cards'] as List? ?? const []))
             if (raw is Map<String, dynamic>) Flashcard.fromJson(raw),
         ],
+        tags: parseTags(json['tags']),
       );
 }
 

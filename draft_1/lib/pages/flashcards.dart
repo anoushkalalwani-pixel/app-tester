@@ -2,8 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:draft_1/globals.dart' as globals;
 import 'package:draft_1/model.dart';
 import 'package:draft_1/OpenAIAPI.dart';
+import 'package:draft_1/pages/search.dart';
 import 'package:draft_1/sync/sync_service.dart';
 import 'package:draft_1/theme/app_theme.dart';
+import 'package:draft_1/widgets/tag_editor.dart';
 
 /// Decks home: lists every saved [Deck] and is the entry point for generating
 /// new flashcards from notes with the AI provider.
@@ -23,11 +25,28 @@ class _UserFlashcardsState extends State<UserFlashcards> {
     if (mounted) setState(() {});
   }
 
+  Future<void> _openSearch() async {
+    await Navigator.of(context).push(
+      MaterialPageRoute(builder: (_) => const FlashcardSearchScreen()),
+    );
+    // Tags or cards may have changed while searching; refresh the list.
+    if (mounted) setState(() {});
+  }
+
   @override
   Widget build(BuildContext context) {
     final colors = context.colors;
     return Scaffold(
-      appBar: AppBar(title: const Text('Flashcards')),
+      appBar: AppBar(
+        title: const Text('Flashcards'),
+        actions: [
+          IconButton(
+            tooltip: 'Search',
+            icon: const Icon(Icons.search),
+            onPressed: globals.decks.isEmpty ? null : _openSearch,
+          ),
+        ],
+      ),
       floatingActionButton: FloatingActionButton.extended(
         onPressed: _openGenerator,
         backgroundColor: colors.positive,
@@ -68,12 +87,22 @@ class _UserFlashcardsState extends State<UserFlashcards> {
                         Icon(Icons.style, color: colors.onSurface),
                         const HGap(AppSpacing.md),
                         Expanded(
-                          child: Text(
-                            deck.name,
-                            style: context.text.titleMedium
-                                ?.copyWith(color: colors.onSurface),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                deck.name,
+                                style: context.text.titleMedium
+                                    ?.copyWith(color: colors.onSurface),
+                              ),
+                              if (deck.tags.isNotEmpty) ...[
+                                const VGap(AppSpacing.xs),
+                                TagChips(tags: deck.tags),
+                              ],
+                            ],
                           ),
                         ),
+                        const HGap(AppSpacing.sm),
                         Text(
                           '${deck.cards.length} '
                           '${deck.cards.length == 1 ? 'card' : 'cards'}',
@@ -429,17 +458,56 @@ class _EditableCard {
   _EditableCard({required this.question, required this.answer});
 }
 
-/// Read-only view of the cards inside a single deck.
-class DeckDetailScreen extends StatelessWidget {
+/// View of the cards inside a single deck. Deck-level tags and each card's tags
+/// can be edited here; tags drive the search & filtering screen.
+class DeckDetailScreen extends StatefulWidget {
   final Deck deck;
 
   const DeckDetailScreen({super.key, required this.deck});
 
   @override
+  State<DeckDetailScreen> createState() => _DeckDetailScreenState();
+}
+
+class _DeckDetailScreenState extends State<DeckDetailScreen> {
+  Deck get deck => widget.deck;
+
+  Future<void> _editDeckTags() async {
+    final updated = await editTags(
+      context,
+      initialTags: deck.tags,
+      title: 'Deck tags',
+    );
+    if (updated == null || !mounted) return;
+    setState(() => deck.tags = updated);
+    SyncService.instance.markDirty();
+  }
+
+  Future<void> _editCardTags(Flashcard card) async {
+    final updated = await editTags(
+      context,
+      initialTags: card.tags,
+      title: 'Card tags',
+    );
+    if (updated == null || !mounted) return;
+    setState(() => card.tags = updated);
+    SyncService.instance.markDirty();
+  }
+
+  @override
   Widget build(BuildContext context) {
     final colors = context.colors;
     return Scaffold(
-      appBar: AppBar(title: Text(deck.name)),
+      appBar: AppBar(
+        title: Text(deck.name),
+        actions: [
+          IconButton(
+            tooltip: 'Edit deck tags',
+            icon: const Icon(Icons.label_outline),
+            onPressed: _editDeckTags,
+          ),
+        ],
+      ),
       body: deck.cards.isEmpty
           ? Center(
               child: Text(
@@ -447,33 +515,59 @@ class DeckDetailScreen extends StatelessWidget {
                 style: context.text.bodyLarge?.copyWith(color: colors.bodyText),
               ),
             )
-          : ListView.builder(
+          : ListView(
               padding: const EdgeInsets.all(AppSpacing.sm),
-              itemCount: deck.cards.length,
-              itemBuilder: (context, index) {
-                final card = deck.cards[index];
-                return Padding(
-                  padding: const EdgeInsets.symmetric(vertical: AppSpacing.xs),
-                  child: AppCard(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          card.question,
-                          style: context.text.titleMedium
-                              ?.copyWith(color: colors.onSurface),
-                        ),
-                        const VGap(AppSpacing.sm),
-                        Text(
-                          card.answer,
-                          style: context.text.bodyLarge
-                              ?.copyWith(color: colors.onSurface),
-                        ),
-                      ],
+              children: [
+                if (deck.tags.isNotEmpty)
+                  Padding(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: AppSpacing.xs,
+                      vertical: AppSpacing.sm,
+                    ),
+                    child: TagChips(tags: deck.tags),
+                  ),
+                for (final card in deck.cards)
+                  Padding(
+                    padding:
+                        const EdgeInsets.symmetric(vertical: AppSpacing.xs),
+                    child: AppCard(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Row(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Expanded(
+                                child: Text(
+                                  card.question,
+                                  style: context.text.titleMedium
+                                      ?.copyWith(color: colors.onSurface),
+                                ),
+                              ),
+                              IconButton(
+                                tooltip: 'Edit tags',
+                                visualDensity: VisualDensity.compact,
+                                icon: Icon(Icons.label_outline,
+                                    color: colors.onSurface),
+                                onPressed: () => _editCardTags(card),
+                              ),
+                            ],
+                          ),
+                          const VGap(AppSpacing.sm),
+                          Text(
+                            card.answer,
+                            style: context.text.bodyLarge
+                                ?.copyWith(color: colors.onSurface),
+                          ),
+                          if (card.tags.isNotEmpty) ...[
+                            const VGap(AppSpacing.sm),
+                            TagChips(tags: card.tags),
+                          ],
+                        ],
+                      ),
                     ),
                   ),
-                );
-              },
+              ],
             ),
     );
   }

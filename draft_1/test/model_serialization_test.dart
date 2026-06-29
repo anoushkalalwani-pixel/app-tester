@@ -39,17 +39,38 @@ void main() {
   });
 
   test('Deck (with cards) round-trips through JSON', () {
-    final deck = Deck(name: 'Bio', cards: [
-      Flashcard(question: 'Q1', answer: 'A1'),
+    final deck = Deck(name: 'Bio', tags: ['science', 'exam'], cards: [
+      Flashcard(question: 'Q1', answer: 'A1', tags: ['cells']),
       Flashcard(question: 'Q2', answer: 'A2'),
     ]);
 
     final restored = Deck.fromJson(deck.toJson());
 
     expect(restored.name, 'Bio');
+    expect(restored.tags, ['science', 'exam']);
     expect(restored.cards.length, 2);
     expect(restored.cards.first.question, 'Q1');
+    expect(restored.cards.first.tags, ['cells']);
     expect(restored.cards.last.answer, 'A2');
+    expect(restored.cards.last.tags, isEmpty);
+  });
+
+  test('tags default to empty and survive missing/old payloads', () {
+    // Payload with no `tags` key (an AI-generated or pre-tags card).
+    final card = Flashcard.fromJson({'question': 'Q', 'answer': 'A'});
+    expect(card.tags, isEmpty);
+
+    final deck = Deck.fromJson({'name': 'Old'});
+    expect(deck.tags, isEmpty);
+  });
+
+  test('parseTags trims, drops empties and dedupes case-insensitively', () {
+    expect(
+      parseTags(['  Math ', 'math', '', 'Science', 'MATH']),
+      ['Math', 'Science'],
+    );
+    expect(parseTags('not a list'), isEmpty);
+    expect(parseTags(null), isEmpty);
   });
 
   test('StudySession round-trips through JSON', () {

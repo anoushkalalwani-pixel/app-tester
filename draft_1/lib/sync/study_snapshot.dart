@@ -92,7 +92,7 @@ class StudySnapshot {
       if (seenSessions.add(key(session.toJson()))) sessions.add(session);
     }
 
-    // Decks — merge by name, unioning cards within a deck.
+    // Decks — merge by name, unioning both cards and tags within a deck.
     final decksByName = <String, Deck>{};
     for (final deck in [...a.decks, ...b.decks]) {
       final target = decksByName.putIfAbsent(deck.name, () => Deck(name: deck.name));
@@ -100,6 +100,8 @@ class StudySnapshot {
       for (final card in deck.cards) {
         if (seenCards.add(key(card.toJson()))) target.cards.add(card);
       }
+      // Union tags, deduping case-insensitively via parseTags.
+      target.tags = parseTags([...target.tags, ...deck.tags]);
     }
 
     // Tasks — merge per day, dedupe by name, OR the completion flag.
