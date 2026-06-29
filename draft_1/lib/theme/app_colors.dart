@@ -29,6 +29,12 @@ const Color kDarkAccentText = Color(0xFFB39DFF);
 /// Neutral grey used for secondary chat bubbles / hint text.
 const Color kNeutralGrey = Color.fromARGB(255, 93, 93, 93);
 
+/// Amber used for "medium priority" / caution accents (study-coach priorities).
+const Color kAmber = Color(0xFFFFB300);
+
+/// Red used for "high priority" / urgent accents (study-coach priorities).
+const Color kRed = Color(0xFFE5484D);
+
 // ---------------------------------------------------------------------------
 // Semantic colours
 // ---------------------------------------------------------------------------
@@ -56,6 +62,12 @@ class AppColors extends ThemeExtension<AppColors> {
   /// Green action colour (save buttons, progress, slider, charts).
   final Color positive;
 
+  /// Amber accent for caution / medium-priority indicators.
+  final Color warning;
+
+  /// Red accent for urgent / high-priority indicators.
+  final Color danger;
+
   /// Curved navigation bar foreground colour.
   final Color navBar;
 
@@ -69,6 +81,8 @@ class AppColors extends ThemeExtension<AppColors> {
     required this.bodyText,
     required this.accentText,
     required this.positive,
+    required this.warning,
+    required this.danger,
     required this.navBar,
     required this.neutral,
   });
@@ -81,6 +95,8 @@ class AppColors extends ThemeExtension<AppColors> {
     bodyText: kNavy,
     accentText: kLightAccentText,
     positive: kGreen,
+    warning: kAmber,
+    danger: kRed,
     navBar: kNavy,
     neutral: kNeutralGrey,
   );
@@ -93,6 +109,8 @@ class AppColors extends ThemeExtension<AppColors> {
     bodyText: kDarkBodyText,
     accentText: kDarkAccentText,
     positive: kGreen,
+    warning: kAmber,
+    danger: kRed,
     navBar: kDarkSurface,
     neutral: kNeutralGrey,
   );
@@ -105,6 +123,8 @@ class AppColors extends ThemeExtension<AppColors> {
     Color? bodyText,
     Color? accentText,
     Color? positive,
+    Color? warning,
+    Color? danger,
     Color? navBar,
     Color? neutral,
   }) {
@@ -115,6 +135,8 @@ class AppColors extends ThemeExtension<AppColors> {
       bodyText: bodyText ?? this.bodyText,
       accentText: accentText ?? this.accentText,
       positive: positive ?? this.positive,
+      warning: warning ?? this.warning,
+      danger: danger ?? this.danger,
       navBar: navBar ?? this.navBar,
       neutral: neutral ?? this.neutral,
     );
@@ -130,6 +152,8 @@ class AppColors extends ThemeExtension<AppColors> {
       bodyText: Color.lerp(bodyText, other.bodyText, t)!,
       accentText: Color.lerp(accentText, other.accentText, t)!,
       positive: Color.lerp(positive, other.positive, t)!,
+      warning: Color.lerp(warning, other.warning, t)!,
+      danger: Color.lerp(danger, other.danger, t)!,
       navBar: Color.lerp(navBar, other.navBar, t)!,
       neutral: Color.lerp(neutral, other.neutral, t)!,
     );
