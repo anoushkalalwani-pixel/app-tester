@@ -1,6 +1,7 @@
 import 'package:curved_navigation_bar/curved_navigation_bar.dart';
 import 'package:draft_1/pages/add.dart';
 import 'package:draft_1/pages/chat.dart';
+import 'package:draft_1/pages/dashboard.dart';
 import 'package:draft_1/pages/home.dart';
 import 'package:draft_1/pages/profile.dart';
 import 'package:draft_1/pages/tests.dart';
@@ -29,6 +30,7 @@ class _HomePageState extends State<HomePage>{
 
   final List<Widget> _pages = [
     UserHome(),
+    const UserDashboard(),
     UserTests(),
     UserNew(),
     UserChat(),
@@ -50,6 +52,7 @@ class _HomePageState extends State<HomePage>{
 
         items: [
           Icon(Icons.home, color: Colors.white),
+          Icon(Icons.insights, color: Colors.white),
           Icon(Icons.list_alt_rounded, color: Colors.white),
           Icon(Icons.add, color: Colors.white),
           Icon(Icons.message, color: Colors.white),

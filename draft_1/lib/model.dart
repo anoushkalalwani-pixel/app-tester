@@ -99,3 +99,33 @@ class Task {
 
   Task({required this.name, this.isCompleted = false});
 }
+
+/// A single completed study session, used to power the analytics dashboard.
+class StudySession {
+  /// The day (and time) the session took place.
+  final DateTime date;
+
+  /// Subject that was studied during the session.
+  final String subject;
+
+  /// How long the session lasted, in minutes.
+  final int durationMinutes;
+
+  /// Number of flashcards reviewed during the session.
+  final int cardsReviewed;
+
+  /// Of the [cardsReviewed], how many were answered correctly.
+  final int correctAnswers;
+
+  const StudySession({
+    required this.date,
+    required this.subject,
+    required this.durationMinutes,
+    required this.cardsReviewed,
+    required this.correctAnswers,
+  });
+
+  /// Fraction of reviewed cards that were correct, in the range 0.0 – 1.0.
+  double get accuracy =>
+      cardsReviewed == 0 ? 0 : correctAnswers / cardsReviewed;
+}
