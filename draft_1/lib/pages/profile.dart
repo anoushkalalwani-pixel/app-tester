@@ -1,11 +1,12 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart'; // for Google Fonts
 import 'package:flutter/cupertino.dart'; // for Cupertino Icons
 import 'package:draft_1/homepage.dart'; // assuming homepage is imported
 import 'package:draft_1/theme/app_theme.dart';
 import 'package:draft_1/theme/theme_controller.dart';
 
 class UserProfile extends StatefulWidget {
+  const UserProfile({super.key});
+
   @override
   _UserProfileFormState createState() => _UserProfileFormState();
 }
@@ -21,20 +22,11 @@ class _UserProfileFormState extends State<UserProfile> {
   Widget build(BuildContext context) {
     final colors = context.colors;
     return Scaffold(
-      backgroundColor: colors.background,
       appBar: AppBar(
-        backgroundColor: colors.surface, // dark blue app bar
-        title: Text(
-          'User Profile',
-          style: GoogleFonts.nunito( // Source Code Pro font for title
-            color: colors.onSurface,
-            fontSize: 24.0,
-            fontWeight: FontWeight.bold,
-          ),
-        ),
+        title: const Text('User Profile'),
         actions: [
           IconButton(
-            icon: Icon(CupertinoIcons.pencil, color: colors.onSurface), // Pencil icon
+            icon: Icon(CupertinoIcons.pencil, color: colors.onSurface),
             onPressed: () {
               // Handle edit logic
             },
@@ -42,35 +34,29 @@ class _UserProfileFormState extends State<UserProfile> {
         ],
       ),
       body: SingleChildScrollView(
-        padding: EdgeInsets.all(16.0),
+        padding: const EdgeInsets.all(AppSpacing.lg),
         child: Form(
           key: _formKey,
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: <Widget>[
               _buildTextField('First Name', _firstNameController),
-              SizedBox(height: 16),
+              const VGap(AppSpacing.lg),
               _buildTextField('Last Name', _lastNameController),
-              SizedBox(height: 16),
+              const VGap(AppSpacing.lg),
               _buildTextField('Grade', _gradeController, isNumeric: true),
-              SizedBox(height: 16),
+              const VGap(AppSpacing.lg),
               _buildTextField('Email', _emailController, isEmail: true),
-              SizedBox(height: 16),
+              const VGap(AppSpacing.lg),
               _buildThemeToggle(colors),
-              SizedBox(height: 24),
+              const VGap(AppSpacing.xxl),
               Center(
                 child: ElevatedButton(
                   onPressed: () {
-                    Navigator.pushReplacement(
-                        context, MaterialPageRoute(builder: (context) => HomePage()));
+                    Navigator.pushReplacement(context,
+                        MaterialPageRoute(builder: (context) => HomePage()));
                   },
-                  child: Text('Save'),
-                  style: ElevatedButton.styleFrom(
-                    textStyle: GoogleFonts.nunito( // Source Code Pro font for button
-                      fontSize: 18,
-                      color: Colors.white,
-                    ),
-                  ),
+                  child: const Text('Save'),
                 ),
               ),
             ],
@@ -81,18 +67,15 @@ class _UserProfileFormState extends State<UserProfile> {
   }
 
   Widget _buildThemeToggle(AppColors colors) {
-    return Container(
-      decoration: BoxDecoration(
-        color: colors.surface,
-        borderRadius: BorderRadius.circular(12),
-      ),
+    return AppCard(
+      padding: EdgeInsets.zero,
+      radius: AppRadius.md,
       child: SwitchListTile(
         title: Text(
           'Dark Mode',
-          style: GoogleFonts.nunito(
+          style: context.text.titleMedium?.copyWith(
             color: colors.onSurface,
             fontSize: 16,
-            fontWeight: FontWeight.bold,
           ),
         ),
         secondary: Icon(
@@ -115,23 +98,20 @@ class _UserProfileFormState extends State<UserProfile> {
     final colors = context.colors;
     return TextFormField(
       controller: controller,
-      decoration: InputDecoration(
-        labelText: label,
-        labelStyle: GoogleFonts.nunito(color: colors.onSurface), // white label text
-        filled: true,
-        fillColor: colors.surface, // dark blue background for the text field
-        border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12), // rounded corners
-        ),
+      decoration: AppInputs.filled(
+        context,
+        label: label,
         suffixIcon: IconButton(
-          icon: Icon(CupertinoIcons.pencil, color: colors.onSurface), // white pencil icon
+          icon: Icon(CupertinoIcons.pencil, color: colors.onSurface),
           onPressed: () {
             // handle edit
           },
         ),
       ),
-      style: GoogleFonts.nunito(color: colors.onSurface), // white input text
-      keyboardType: isNumeric ? TextInputType.number : (isEmail ? TextInputType.emailAddress : TextInputType.text),
+      style: context.text.bodyLarge?.copyWith(color: colors.onSurface),
+      keyboardType: isNumeric
+          ? TextInputType.number
+          : (isEmail ? TextInputType.emailAddress : TextInputType.text),
       validator: (value) {
         if (value == null || value.isEmpty) {
           return 'Please enter your $label';

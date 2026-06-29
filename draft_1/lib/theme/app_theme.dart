@@ -1,166 +1,140 @@
 import 'package:flutter/material.dart';
 
-/// Semantic colors for the app, resolved per-theme so screens never hardcode
-/// raw color values. Read with `Theme.of(context).extension<AppColors>()!`
-/// (or the `context.colors` helper at the bottom of this file).
-@immutable
-class AppColors extends ThemeExtension<AppColors> {
-  /// Page / scaffold background.
-  final Color background;
+import 'app_colors.dart';
+import 'app_spacing.dart';
+import 'app_typography.dart';
 
-  /// Navy "card" surface used for cards, app bars, the nav bar and inputs.
-  final Color surface;
+// Re-export so existing `import 'theme/app_theme.dart'` keeps giving screens
+// access to AppColors and the `context.colors` extension.
+export 'app_colors.dart';
+export 'app_components.dart';
+export 'app_spacing.dart';
+export 'app_typography.dart';
 
-  /// Text / icons that sit on top of [surface].
-  final Color onSurface;
+/// Builds the app's light and dark [ThemeData] from the central palette,
+/// typography and spacing scales.
+///
+/// Everything that can be themed once — colours, fonts, app bar, cards, inputs,
+/// buttons, sliders, switches, progress and dialogs — is configured here so
+/// screens stay free of duplicated styling.
+abstract final class AppTheme {
+  static ThemeData get light => _build(
+        brightness: Brightness.light,
+        colors: AppColors.light,
+        base: ThemeData.light(useMaterial3: true),
+      );
 
-  /// Primary body text shown directly on [background].
-  final Color bodyText;
+  static ThemeData get dark => _build(
+        brightness: Brightness.dark,
+        colors: AppColors.dark,
+        base: ThemeData.dark(useMaterial3: true),
+      );
 
-  /// Accent used for the home greeting headline.
-  final Color accentText;
-
-  /// Green action color (save buttons, progress, slider).
-  final Color positive;
-
-  /// Curved navigation bar foreground color.
-  final Color navBar;
-
-  const AppColors({
-    required this.background,
-    required this.surface,
-    required this.onSurface,
-    required this.bodyText,
-    required this.accentText,
-    required this.positive,
-    required this.navBar,
-  });
-
-  @override
-  AppColors copyWith({
-    Color? background,
-    Color? surface,
-    Color? onSurface,
-    Color? bodyText,
-    Color? accentText,
-    Color? positive,
-    Color? navBar,
+  static ThemeData _build({
+    required Brightness brightness,
+    required AppColors colors,
+    required ThemeData base,
   }) {
-    return AppColors(
-      background: background ?? this.background,
-      surface: surface ?? this.surface,
-      onSurface: onSurface ?? this.onSurface,
-      bodyText: bodyText ?? this.bodyText,
-      accentText: accentText ?? this.accentText,
-      positive: positive ?? this.positive,
-      navBar: navBar ?? this.navBar,
+    // A full ColorScheme derived from the same palette as AppColors, so the
+    // Material widgets (buttons, dialogs, etc.) are coloured from one source.
+    final colorScheme = base.colorScheme.copyWith(
+      brightness: brightness,
+      primary: colors.surface,
+      onPrimary: colors.onSurface,
+      secondary: colors.positive,
+      onSecondary: Colors.white,
+      surface: colors.background,
+      onSurface: colors.bodyText,
+      surfaceContainerHighest: colors.surface,
+      onSurfaceVariant: colors.onSurface,
     );
-  }
 
-  @override
-  AppColors lerp(ThemeExtension<AppColors>? other, double t) {
-    if (other is! AppColors) return this;
-    return AppColors(
-      background: Color.lerp(background, other.background, t)!,
-      surface: Color.lerp(surface, other.surface, t)!,
-      onSurface: Color.lerp(onSurface, other.onSurface, t)!,
-      bodyText: Color.lerp(bodyText, other.bodyText, t)!,
-      accentText: Color.lerp(accentText, other.accentText, t)!,
-      positive: Color.lerp(positive, other.positive, t)!,
-      navBar: Color.lerp(navBar, other.navBar, t)!,
-    );
-  }
-}
+    final textTheme = AppTypography.textTheme(colors.bodyText);
 
-// ---------------------------------------------------------------------------
-// Raw palette
-// ---------------------------------------------------------------------------
-
-// The signature navy used throughout the original app.
-const Color _navy = Color.fromARGB(255, 0, 37, 68);
-const Color _green = Color.fromARGB(255, 0, 208, 90);
-
-// Light theme: an even-lighter near-white blue background (the task asked to
-// make the light theme lighter), keeping the navy surfaces and text.
-const Color _lightBackground = Color(0xFFEAF7FF);
-const Color _lightAccentText = Color.fromARGB(255, 50, 30, 130);
-
-// Dark theme: a deep navy background that preserves the blue identity, with a
-// slightly raised navy surface so cards stay legible, and soft light-blue text.
-const Color _darkBackground = Color(0xFF0D1B2A);
-const Color _darkSurface = Color(0xFF16324F);
-const Color _darkBodyText = Color(0xFFE3F2FD);
-const Color _darkAccentText = Color(0xFFB39DFF);
-
-const AppColors _lightColors = AppColors(
-  background: _lightBackground,
-  surface: _navy,
-  onSurface: Colors.white,
-  bodyText: _navy,
-  accentText: _lightAccentText,
-  positive: _green,
-  navBar: _navy,
-);
-
-const AppColors _darkColors = AppColors(
-  background: _darkBackground,
-  surface: _darkSurface,
-  onSurface: Colors.white,
-  bodyText: _darkBodyText,
-  accentText: _darkAccentText,
-  positive: _green,
-  navBar: _darkSurface,
-);
-
-class AppTheme {
-  static ThemeData get light {
-    final base = ThemeData.light(useMaterial3: true);
     return base.copyWith(
-      scaffoldBackgroundColor: _lightColors.background,
-      colorScheme: base.colorScheme.copyWith(
-        primary: _navy,
-        secondary: _green,
-        surface: _lightColors.background,
-      ),
-      appBarTheme: const AppBarTheme(
-        backgroundColor: _navy,
-        foregroundColor: Colors.white,
-      ),
-      elevatedButtonTheme: ElevatedButtonThemeData(
-        style: ElevatedButton.styleFrom(
-          backgroundColor: _navy,
-          foregroundColor: Colors.white,
+      colorScheme: colorScheme,
+      scaffoldBackgroundColor: colors.background,
+      textTheme: textTheme,
+
+      appBarTheme: AppBarTheme(
+        backgroundColor: colors.surface,
+        foregroundColor: colors.onSurface,
+        elevation: 0,
+        centerTitle: false,
+        titleTextStyle: textTheme.headlineMedium?.copyWith(
+          color: colors.onSurface,
         ),
       ),
-      extensions: const [_lightColors],
-    );
-  }
 
-  static ThemeData get dark {
-    final base = ThemeData.dark(useMaterial3: true);
-    return base.copyWith(
-      scaffoldBackgroundColor: _darkColors.background,
-      colorScheme: base.colorScheme.copyWith(
-        primary: _darkSurface,
-        secondary: _green,
-        surface: _darkColors.surface,
+      cardTheme: CardThemeData(
+        color: colors.surface,
+        elevation: 0,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(AppRadius.lg),
+        ),
+        margin: EdgeInsets.zero,
       ),
-      appBarTheme: const AppBarTheme(
-        backgroundColor: _darkSurface,
-        foregroundColor: Colors.white,
-      ),
+
       elevatedButtonTheme: ElevatedButtonThemeData(
         style: ElevatedButton.styleFrom(
-          backgroundColor: _darkSurface,
-          foregroundColor: Colors.white,
+          backgroundColor: colors.surface,
+          foregroundColor: colors.onSurface,
+          textStyle: textTheme.labelLarge,
+          padding: const EdgeInsets.symmetric(
+            horizontal: AppSpacing.xl,
+            vertical: AppSpacing.md,
+          ),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(AppRadius.md),
+          ),
         ),
       ),
-      extensions: const [_darkColors],
+
+      textButtonTheme: TextButtonThemeData(
+        style: TextButton.styleFrom(
+          foregroundColor: colors.surface,
+          textStyle: textTheme.labelLarge,
+        ),
+      ),
+
+      inputDecorationTheme: InputDecorationTheme(
+        filled: true,
+        fillColor: colors.surface,
+        labelStyle: TextStyle(color: colors.onSurface),
+        hintStyle: TextStyle(color: colors.onSurface),
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(AppRadius.md),
+        ),
+      ),
+
+      sliderTheme: base.sliderTheme.copyWith(
+        activeTrackColor: colors.positive,
+        inactiveTrackColor: colors.onSurface,
+        thumbColor: colors.positive,
+      ),
+
+      switchTheme: SwitchThemeData(
+        thumbColor: WidgetStateProperty.resolveWith(
+          (states) => states.contains(WidgetState.selected)
+              ? colors.positive
+              : null,
+        ),
+      ),
+
+      progressIndicatorTheme: ProgressIndicatorThemeData(
+        color: colors.positive,
+      ),
+
+      dialogTheme: DialogThemeData(
+        backgroundColor: colors.background,
+        titleTextStyle: textTheme.titleMedium,
+        contentTextStyle: textTheme.bodyLarge,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(AppRadius.lg),
+        ),
+      ),
+
+      extensions: [colors],
     );
   }
-}
-
-/// Convenience accessor: `context.colors.surface`.
-extension AppColorsX on BuildContext {
-  AppColors get colors => Theme.of(this).extension<AppColors>()!;
 }

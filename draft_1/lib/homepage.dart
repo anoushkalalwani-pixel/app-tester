@@ -51,19 +51,12 @@ class _HomePageState extends State<HomePage>{
       color: colors.navBar,
 
         items: [
-          Icon(Icons.home, color: Colors.white),
-          Icon(Icons.insights, color: Colors.white),
-          Icon(Icons.list_alt_rounded, color: Colors.white),
-          Icon(Icons.add, color: Colors.white),
-          Icon(Icons.message, color: Colors.white),
-          Icon(Icons.person, color: Colors.white)
-          
-          
-          //BottomNavigationBarItem(icon: Icon(Icons.list_alt_rounded), label: 'Tests'),
-          //BottomNavigationBarItem(icon: Icon(Icons.add), label: 'New'),
-          //BottomNavigationBarItem(icon: Icon(Icons.message), label: 'Chat'),
-          //BottomNavigationBarItem(icon: Icon(Icons.person), label: 'Profile')
-
+          Icon(Icons.home, color: colors.onSurface),
+          Icon(Icons.insights, color: colors.onSurface),
+          Icon(Icons.list_alt_rounded, color: colors.onSurface),
+          Icon(Icons.add, color: colors.onSurface),
+          Icon(Icons.message, color: colors.onSurface),
+          Icon(Icons.person, color: colors.onSurface),
         ],
       ),
     );

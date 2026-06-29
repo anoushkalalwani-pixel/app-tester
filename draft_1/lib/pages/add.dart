@@ -1,16 +1,13 @@
-//import 'dart:js_interop';
-
-//import 'dart:js_interop';
-
 import 'dart:async';
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:draft_1/model.dart'; // Assuming this is where your models are
 import 'package:draft_1/homepage.dart';
 import 'package:draft_1/theme/app_theme.dart';
 import '../globals.dart' as globals;
 
 class UserNew extends StatefulWidget {
+  const UserNew({super.key});
+
   @override
   _UserNewState createState() => _UserNewState();
 }
@@ -26,7 +23,7 @@ class _UserNewState extends State<UserNew> {
   final _targetGradeController = TextEditingController();
 
   int _currentStep = 0; // Step tracker
-  int _totalSteps = 5;  // Total number of questions/steps
+  final int _totalSteps = 5; // Total number of questions/steps
 
   // Typewriter animation variables
   String _questionText = "";
@@ -66,43 +63,43 @@ class _UserNewState extends State<UserNew> {
   Widget build(BuildContext context) {
     final colors = context.colors;
     return Scaffold(
-      backgroundColor: colors.background,
       appBar: AppBar(
         title: Text(
           '${_currentStep + 1} of $_totalSteps',
-          style: GoogleFonts.nunito(color: colors.onSurface, fontSize: 18),
-
+          style: context.text.titleMedium?.copyWith(color: colors.onSurface),
         ),
-        backgroundColor: colors.surface,
         centerTitle: true,
         bottom: PreferredSize(
-          preferredSize: Size.fromHeight(30.0),
+          preferredSize: const Size.fromHeight(30.0),
           child: Container(
-            margin: EdgeInsets.symmetric(horizontal: 20.0),
+            margin: const EdgeInsets.symmetric(horizontal: AppSpacing.xl),
             child: LinearProgressIndicator(
               value: (_currentStep + 1) / _totalSteps,
               color: colors.positive,
-              backgroundColor: Colors.white,
+              backgroundColor: colors.onSurface,
             ),
           ),
         ),
       ),
       body: Center(
         child: ListView(
-          padding: const EdgeInsets.all(15.0),
+          padding: const EdgeInsets.all(AppSpacing.lg),
           children: [
             Container(
-              margin: const EdgeInsets.only(bottom: 20),
+              margin: const EdgeInsets.only(bottom: AppSpacing.xl),
               child: Text(
                 _questionText,
-                style: GoogleFonts.nunito(fontSize: 24, color: colors.accentText),
+                style:
+                    context.text.headlineMedium?.copyWith(color: colors.accentText),
                 textAlign: TextAlign.center,
               ),
             ),
-            _buildStepContainer(
-              child: _buildStepInput(),
+            AppCard(
+              padding: const EdgeInsets.all(AppSpacing.xl),
+              radius: AppRadius.lg,
+              child: Center(child: _buildStepInput()),
             ),
-            SizedBox(height: 20),
+            const VGap(AppSpacing.xl),
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
@@ -127,15 +124,11 @@ class _UserNewState extends State<UserNew> {
                   ElevatedButton(
                     onPressed: () {
                       createTest();
-                      Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => HomePage()));
+                      Navigator.pushReplacement(context,
+                          MaterialPageRoute(builder: (context) => HomePage()));
                     },
-                    child: Text('Save'),
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: colors.positive,
-                      foregroundColor: Colors.white,
-                      padding: EdgeInsets.symmetric(horizontal: 25, vertical: 10),
-                      textStyle: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-                    ),
+                    style: AppButtons.positive(context),
+                    child: const Text('Save'),
                   ),
               ],
             ),
@@ -159,37 +152,22 @@ class _UserNewState extends State<UserNew> {
     );
   }
 
-  Widget _buildStepContainer({required Widget child}) {
-    return Container(
-      padding: const EdgeInsets.all(20),
-      margin: const EdgeInsets.symmetric(vertical: 10),
-      decoration: BoxDecoration(
-        color: context.colors.surface, // Dark blue background
-        borderRadius: BorderRadius.circular(15.0), // Rounded corners
-      ),
-      child: Center(child: child),
-    );
-  }
-
   Widget _buildStepInput() {
     final colors = context.colors;
+    final fieldStyle = context.text.bodyLarge?.copyWith(color: colors.onSurface);
     switch (_currentStep) {
       case 0:
         return TextField(
           controller: _subjectController,
-          decoration: InputDecoration(
-            hintText: 'Subject: ',
-            border: InputBorder.none,
-            hintStyle: TextStyle(color: Colors.white),
-          ),
-          style: GoogleFonts.nunito(color: Colors.white, fontSize: 18),
+          decoration: AppInputs.onCard(context, hint: 'Subject: '),
+          style: fieldStyle,
         );
       case 1:
         return DropdownButtonHideUnderline(
           child: DropdownButton<String>(
             value: _selectedTestType,
-            dropdownColor: colors.surface, // Dark blue dropdown
-            style: TextStyle(color: Colors.white),
+            dropdownColor: colors.surface,
+            style: fieldStyle,
             onChanged: (String? newValue) {
               setState(() {
                 _selectedTestType = newValue!;
@@ -210,39 +188,27 @@ class _UserNewState extends State<UserNew> {
             Expanded(
               child: TextField(
                 controller: _monthController,
-                decoration: InputDecoration(
-                  hintText: 'MM',
-                  border: InputBorder.none,
-                  hintStyle: TextStyle(color: Colors.white),
-                ),
+                decoration: AppInputs.onCard(context, hint: 'MM'),
                 keyboardType: TextInputType.number,
-                style: GoogleFonts.nunito(color: Colors.white),
+                style: fieldStyle,
               ),
             ),
-            SizedBox(width: 10),
+            const HGap(AppSpacing.md),
             Expanded(
               child: TextField(
                 controller: _dayController,
-                decoration: InputDecoration(
-                  hintText: 'DD',
-                  border: InputBorder.none,
-                  hintStyle: TextStyle(color: Colors.white),
-                ),
+                decoration: AppInputs.onCard(context, hint: 'DD'),
                 keyboardType: TextInputType.number,
-                style: GoogleFonts.nunito(color: Colors.white),
+                style: fieldStyle,
               ),
             ),
-            SizedBox(width: 10),
+            const HGap(AppSpacing.md),
             Expanded(
               child: TextField(
                 controller: _yearController,
-                decoration: InputDecoration(
-                  hintText: 'YYYY',
-                  border: InputBorder.none,
-                  hintStyle: TextStyle(color: Colors.white),
-                ),
+                decoration: AppInputs.onCard(context, hint: 'YYYY'),
                 keyboardType: TextInputType.number,
-                style: GoogleFonts.nunito(color: Colors.white),
+                style: fieldStyle,
               ),
             ),
           ],
@@ -255,8 +221,6 @@ class _UserNewState extends State<UserNew> {
               min: 0,
               max: 4,
               divisions: 4,
-              activeColor: Color.fromARGB(255, 0, 208, 90), // Change active color to red
-              inactiveColor: Colors.white, // Change inactive color to white
               onChanged: (double value) {
                 setState(() {
                   _difficulty = value;
@@ -267,8 +231,8 @@ class _UserNewState extends State<UserNew> {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Text('Very Easy', style: GoogleFonts.nunito(color: Colors.white, fontSize: 18)),
-                Text('Very Hard', style: GoogleFonts.nunito(color: Colors.white, fontSize: 18)),
+                Text('Very Easy', style: fieldStyle),
+                Text('Very Hard', style: fieldStyle),
               ],
             ),
           ],
@@ -279,26 +243,18 @@ class _UserNewState extends State<UserNew> {
             Expanded(
               child: TextField(
                 controller: _currentGradeController,
-                decoration: InputDecoration(
-                  hintText: 'Current Grade (%)',
-                  border: InputBorder.none,
-                  hintStyle: TextStyle(color: Colors.white),
-                ),
+                decoration: AppInputs.onCard(context, hint: 'Current Grade (%)'),
                 keyboardType: TextInputType.number,
-                style: GoogleFonts.nunito(color: Colors.white),
+                style: fieldStyle,
               ),
             ),
-            SizedBox(width: 10),
+            const HGap(AppSpacing.md),
             Expanded(
               child: TextField(
                 controller: _targetGradeController,
-                decoration: InputDecoration(
-                  hintText: 'Target Grade (%)',
-                  border: InputBorder.none,
-                  hintStyle: TextStyle(color: Colors.white),
-                ),
+                decoration: AppInputs.onCard(context, hint: 'Target Grade (%)'),
                 keyboardType: TextInputType.number,
-                style: GoogleFonts.nunito(color: Colors.white),
+                style: fieldStyle,
               ),
             ),
           ],
@@ -330,37 +286,38 @@ class _UserNewState extends State<UserNew> {
     switch (_selectedTestType) {
       case 'unit':
         type = TestType.unit;
-        break; // Missing break to prevent fall-through
+        break;
       case 'quiz':
         type = TestType.quiz;
-        break; // Missing break to prevent fall-through
+        break;
       case 'final':
         type = TestType.finals;
-        break; // Missing break to prevent fall-through
+        break;
     }
 
     TestDifficulty difficulty = TestDifficulty.normal;
     switch (_difficulty.toInt()) {
       case 0:
         difficulty = TestDifficulty.veryeasy;
-        break; // Missing break to prevent fall-through
+        break;
       case 1:
         difficulty = TestDifficulty.easy;
-        break; // Missing break to prevent fall-through
+        break;
       case 2:
         difficulty = TestDifficulty.normal;
-        break; // Missing break to prevent fall-through
+        break;
       case 3:
         difficulty = TestDifficulty.hard;
-        break; // Missing break to prevent fall-through
+        break;
       case 4:
         difficulty = TestDifficulty.veryhard;
-        break; // Missing break to prevent fall-through
+        break;
     }
 
     Test test = Test(
       _subjectController.text,
-      DateTime(int.parse(_yearController.text), int.parse(_monthController.text), int.parse(_dayController.text)),
+      DateTime(int.parse(_yearController.text),
+          int.parse(_monthController.text), int.parse(_dayController.text)),
       type,
       difficulty,
       int.parse(_currentGradeController.text),

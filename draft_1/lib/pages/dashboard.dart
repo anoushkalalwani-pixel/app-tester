@@ -3,7 +3,6 @@ import 'dart:math' as math;
 import 'package:draft_1/study_analytics.dart';
 import 'package:draft_1/theme/app_theme.dart';
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
 
 /// Study analytics dashboard: study time, cards reviewed, accuracy, streaks and
@@ -14,47 +13,35 @@ class UserDashboard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final colors = context.colors;
     final analytics = StudyAnalytics.instance;
     final daily = analytics.dailyStats(days: 7);
 
     return Scaffold(
-      backgroundColor: colors.background,
-      appBar: AppBar(
-        backgroundColor: colors.surface,
-        title: Text(
-          'Study Analytics',
-          style: GoogleFonts.nunito(
-            color: colors.onSurface,
-            fontSize: 24,
-            fontWeight: FontWeight.bold,
-          ),
-        ),
-      ),
+      appBar: AppBar(title: const Text('Study Analytics')),
       body: SafeArea(
         child: SingleChildScrollView(
-          padding: const EdgeInsets.all(16),
+          padding: const EdgeInsets.all(AppSpacing.lg),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               _StatCardGrid(analytics: analytics),
-              const SizedBox(height: 24),
+              const VGap(AppSpacing.xxl),
               const _SectionTitle('Study time this week'),
-              const SizedBox(height: 12),
+              const VGap(AppSpacing.md),
               _ChartCard(
                 child: _StudyTimeBarChart(daily: daily),
               ),
-              const SizedBox(height: 24),
+              const VGap(AppSpacing.xxl),
               const _SectionTitle('Cards reviewed'),
-              const SizedBox(height: 12),
+              const VGap(AppSpacing.md),
               _ChartCard(
                 child: _CardsReviewedLineChart(daily: daily),
               ),
-              const SizedBox(height: 24),
+              const VGap(AppSpacing.xxl),
               const _SectionTitle('Accuracy'),
-              const SizedBox(height: 12),
+              const VGap(AppSpacing.md),
               _AccuracyCard(analytics: analytics),
-              const SizedBox(height: 16),
+              const VGap(AppSpacing.lg),
             ],
           ),
         ),
@@ -75,11 +62,7 @@ class _SectionTitle extends StatelessWidget {
   Widget build(BuildContext context) {
     return Text(
       text,
-      style: GoogleFonts.nunito(
-        color: context.colors.bodyText,
-        fontSize: 20,
-        fontWeight: FontWeight.bold,
-      ),
+      style: context.text.headlineSmall?.copyWith(color: context.colors.bodyText),
     );
   }
 }
@@ -174,43 +157,33 @@ class _StatCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final colors = context.colors;
-    return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: colors.surface,
-        borderRadius: BorderRadius.circular(16),
-      ),
+    return AppCard(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         mainAxisSize: MainAxisSize.min,
         children: [
           Container(
-            padding: const EdgeInsets.all(8),
+            padding: const EdgeInsets.all(AppSpacing.sm),
             decoration: BoxDecoration(
               color: accent.withValues(alpha: 0.2),
-              borderRadius: BorderRadius.circular(12),
+              borderRadius: BorderRadius.circular(AppRadius.md),
             ),
             child: Icon(icon, color: accent, size: 22),
           ),
-          const SizedBox(height: 12),
+          const VGap(AppSpacing.md),
           FittedBox(
             fit: BoxFit.scaleDown,
             alignment: Alignment.centerLeft,
             child: Text(
               value,
-              style: GoogleFonts.nunito(
-                color: colors.onSurface,
-                fontSize: 24,
-                fontWeight: FontWeight.bold,
-              ),
+              style: context.text.headlineMedium?.copyWith(color: colors.onSurface),
             ),
           ),
-          const SizedBox(height: 4),
+          const VGap(AppSpacing.xs),
           Text(
             label,
-            style: GoogleFonts.nunito(
+            style: context.text.bodyMedium?.copyWith(
               color: colors.onSurface.withValues(alpha: 0.7),
-              fontSize: 14,
             ),
           ),
         ],
@@ -229,15 +202,7 @@ class _ChartCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: context.colors.surface,
-        borderRadius: BorderRadius.circular(16),
-      ),
-      child: child,
-    );
+    return AppCard(width: double.infinity, child: child);
   }
 }
 
@@ -277,12 +242,11 @@ class _StudyTimeBarChart extends StatelessWidget {
             ],
           ),
         ),
-        const SizedBox(height: 8),
+        const VGap(AppSpacing.sm),
         Text(
           'Minutes per day',
-          style: GoogleFonts.nunito(
+          style: context.text.bodySmall?.copyWith(
             color: colors.onSurface.withValues(alpha: 0.7),
-            fontSize: 13,
           ),
         ),
       ],
@@ -312,13 +276,11 @@ class _Bar extends StatelessWidget {
         children: [
           Text(
             valueLabel,
-            style: GoogleFonts.nunito(
+            style: context.text.labelSmall?.copyWith(
               color: colors.onSurface.withValues(alpha: 0.8),
-              fontSize: 11,
-              fontWeight: FontWeight.w600,
             ),
           ),
-          const SizedBox(height: 4),
+          const VGap(AppSpacing.xs),
           Expanded(
             child: Align(
               alignment: Alignment.bottomCenter,
@@ -345,12 +307,11 @@ class _Bar extends StatelessWidget {
               ),
             ),
           ),
-          const SizedBox(height: 6),
+          const VGap(AppSpacing.sm),
           Text(
             label,
-            style: GoogleFonts.nunito(
+            style: context.text.bodySmall?.copyWith(
               color: colors.onSurface,
-              fontSize: 12,
               fontWeight: FontWeight.bold,
             ),
           ),
@@ -388,7 +349,7 @@ class _CardsReviewedLineChart extends StatelessWidget {
             ),
           ),
         ),
-        const SizedBox(height: 8),
+        const VGap(AppSpacing.sm),
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
@@ -397,9 +358,8 @@ class _CardsReviewedLineChart extends StatelessWidget {
                 child: Text(
                   DateFormat.E().format(d.day).substring(0, 1),
                   textAlign: TextAlign.center,
-                  style: GoogleFonts.nunito(
+                  style: context.text.bodySmall?.copyWith(
                     color: colors.onSurface,
-                    fontSize: 12,
                     fontWeight: FontWeight.bold,
                   ),
                 ),
@@ -524,48 +484,44 @@ class _AccuracyCard extends StatelessWidget {
               child: Center(
                 child: Text(
                   '${(accuracy * 100).round()}%',
-                  style: GoogleFonts.nunito(
+                  style: context.text.headlineSmall?.copyWith(
                     color: colors.onSurface,
                     fontSize: 22,
-                    fontWeight: FontWeight.bold,
                   ),
                 ),
               ),
             ),
           ),
-          const SizedBox(width: 20),
+          const HGap(AppSpacing.xl),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
                   'Overall accuracy',
-                  style: GoogleFonts.nunito(
+                  style: context.text.titleMedium?.copyWith(
                     color: colors.onSurface,
                     fontSize: 16,
-                    fontWeight: FontWeight.bold,
                   ),
                 ),
-                const SizedBox(height: 4),
+                const VGap(AppSpacing.xs),
                 Text(
                   '${analytics.totalCardsReviewed} cards reviewed across '
                   '${analytics.completedSessions} sessions',
-                  style: GoogleFonts.nunito(
+                  style: context.text.bodySmall?.copyWith(
                     color: colors.onSurface.withValues(alpha: 0.7),
-                    fontSize: 13,
                   ),
                 ),
-                const SizedBox(height: 12),
+                const VGap(AppSpacing.md),
                 Row(
                   children: [
                     Icon(Icons.local_fire_department,
                         color: colors.positive, size: 18),
-                    const SizedBox(width: 6),
+                    const HGap(AppSpacing.sm),
                     Text(
                       'Longest streak: ${analytics.longestStreak} days',
-                      style: GoogleFonts.nunito(
+                      style: context.text.bodySmall?.copyWith(
                         color: colors.onSurface,
-                        fontSize: 13,
                         fontWeight: FontWeight.w600,
                       ),
                     ),

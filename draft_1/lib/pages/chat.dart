@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
 import 'dart:async';
 import 'package:draft_1/theme/app_theme.dart';
-import 'package:google_fonts/google_fonts.dart'; // for Google Fonts
 
 class UserChat extends StatefulWidget {
+  const UserChat({super.key});
+
   @override
   _ChatScreenState createState() => _ChatScreenState();
 }
@@ -65,15 +66,9 @@ class _ChatScreenState extends State<UserChat> {
   Widget build(BuildContext context) {
     final colors = context.colors;
     return Scaffold(
-      appBar: AppBar(
-        title: Text(
-          'AI Chat',
-          style: GoogleFonts.nunito(color: colors.onSurface), // white text
-        ),
-        backgroundColor: colors.surface, // dark blue app bar
-      ),
+      appBar: AppBar(title: const Text('AI Chat')),
       body: Container(
-        color: colors.background, // light blue background
+        color: colors.background,
         child: Column(
           children: [
             Expanded(
@@ -84,11 +79,8 @@ class _ChatScreenState extends State<UserChat> {
                 itemBuilder: (context, index) => _messages[index],
               ),
             ),
-            Divider(height: 1.0),
-            Container(
-              decoration: BoxDecoration(color: Theme.of(context).cardColor),
-              child: _buildTextComposer(),
-            ),
+            const Divider(height: 1.0),
+            _buildTextComposer(),
           ],
         ),
       ),
@@ -98,39 +90,44 @@ class _ChatScreenState extends State<UserChat> {
   Widget _buildTextComposer() {
     final colors = context.colors;
     return Container(
-      margin: EdgeInsets.symmetric(horizontal: 8.0, vertical: 8.0),
+      margin: const EdgeInsets.symmetric(
+        horizontal: AppSpacing.sm,
+        vertical: AppSpacing.sm,
+      ),
       child: Row(
         children: [
           Expanded(
             child: Container(
               decoration: BoxDecoration(
-                color: Theme.of(context).cardColor,
-                borderRadius: BorderRadius.circular(30.0),
+                color: colors.surface,
+                borderRadius: BorderRadius.circular(AppRadius.pill),
                 boxShadow: [
                   BoxShadow(
-                    offset: Offset(0, 3),
+                    offset: const Offset(0, 3),
                     blurRadius: 5,
-                    color: const Color.fromARGB(255, 93, 93, 93).withOpacity(0.3),
+                    color: colors.neutral.withValues(alpha: 0.3),
                   )
                 ],
               ),
               child: Row(
                 children: [
-                  SizedBox(width: 20),
+                  const HGap(AppSpacing.xl),
                   Expanded(
                     child: TextField(
                       controller: _textController,
                       onSubmitted: _handleSubmitted,
-                      style: TextStyle(color: colors.bodyText),
+                      style: context.text.bodyLarge
+                          ?.copyWith(color: colors.onSurface),
                       decoration: InputDecoration(
                         hintText: "Send a message",
-                        hintStyle: TextStyle(color: Color.fromARGB(255, 93, 93, 93)), // hint color
+                        hintStyle: TextStyle(color: colors.onSurface),
+                        filled: false,
                         border: InputBorder.none,
                       ),
                     ),
                   ),
                   IconButton(
-                    icon: Icon(Icons.send, color: colors.bodyText),
+                    icon: Icon(Icons.send, color: colors.onSurface),
                     onPressed: () => _handleSubmitted(_textController.text),
                   ),
                 ],
@@ -147,32 +144,34 @@ class ChatMessage extends StatelessWidget {
   final String text;
   final bool isUser;
 
-  ChatMessage({required this.text, required this.isUser});
+  const ChatMessage({super.key, required this.text, required this.isUser});
 
   @override
   Widget build(BuildContext context) {
+    final colors = context.colors;
     return Container(
-      margin: EdgeInsets.symmetric(vertical: 10.0),
+      margin: const EdgeInsets.symmetric(vertical: AppSpacing.md),
       child: Row(
         mainAxisAlignment:
             isUser ? MainAxisAlignment.end : MainAxisAlignment.start,
         children: [
-          if (!isUser)
-            CircleAvatar(child: Text('AI')),
+          if (!isUser) const CircleAvatar(child: Text('AI')),
           Container(
             decoration: BoxDecoration(
-              color: isUser ? context.colors.surface : Color.fromARGB(255, 93, 93, 93), // dark blue for user messages
-              borderRadius: BorderRadius.circular(20.0), // more curved boxes
+              color: isUser ? colors.surface : colors.neutral,
+              borderRadius: BorderRadius.circular(AppRadius.lg),
             ),
-            padding: EdgeInsets.symmetric(horizontal: 16.0, vertical: 10.0),
-            margin: EdgeInsets.only(left: 8.0, right: 8.0),
+            padding: const EdgeInsets.symmetric(
+              horizontal: AppSpacing.lg,
+              vertical: AppSpacing.md,
+            ),
+            margin: const EdgeInsets.symmetric(horizontal: AppSpacing.sm),
             child: Text(
               text,
-              style: GoogleFonts.nunito(color: Colors.white), // white text
+              style: context.text.bodyLarge?.copyWith(color: colors.onSurface),
             ),
           ),
-          if (isUser)
-            CircleAvatar(child: Text('You')),
+          if (isUser) const CircleAvatar(child: Text('You')),
         ],
       ),
     );
